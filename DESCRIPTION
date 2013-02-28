@@ -1,0 +1,17 @@
+Package: fdiff
+Type: Package
+Title: evaluate residual and their jocabian for function equation using
+    projection methods
+Version: 0.1
+Date: 2012-12-13
+Author: Thibaut Lamadon
+Maintainer: Thibaut Lamadon <thibaut.lamadon@gmail.com>
+Description: More about what it does (maybe more than one line)
+License: MIT:wq
+Collate:
+    'fdiff.R'
+    'utils.R'
+    'frep.R'
+    'frepSpline1D.R'
+    'frepSpline2D.R'
+    'frepSpline3D.R'
