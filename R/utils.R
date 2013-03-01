@@ -58,3 +58,9 @@ Var <- function(name,size) {
   return(l)
 }
 
+is.fdiff <- function(x) (class(x)=='FDiff')
+
+
+
+
+

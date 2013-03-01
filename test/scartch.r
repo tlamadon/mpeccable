@@ -13,7 +13,7 @@ SplineInt1D <- function(xsupp,ivals) {
   xknots = splineKnots(xsupp)$knots
   Nx     = splineKnots(xsupp)$N
 
- return(function(ain,gin) {
+ return(function(ain,zin,gin) {
 
   # take care of the function representation
   # for sure gin is a fdiff, otherwise, makes not sense
@@ -22,14 +22,20 @@ SplineInt1D <- function(xsupp,ivals) {
     F = array(0,nrow(cc))
     
     for (i in ivals) { # quite inneficient!
-      I = which(cc$z==i)
+      I = which(zin==i)
       J = ((i-1)*Nx+1) : ((i-1)*Nx+Nx)
-      D = splineDesign(xknots,ain[I])
+
+      # check for coloring
+      if (is.fdiff(ain) & getOption('mpeccable.coloring')) {
+        D = array(1,c(length(I),length(J)))
+      } else {
+        D = splineDesign(xknots,ain[I])        
+      }
       M[I,J] = D
       F[I]   = F[I] + c(D %*% gin@F[J])
     }
     vars = list(v1 = length(ivals) * (length(xknots)-4))
-    names(vars) <- names(ain@vars[[1]])
+    names(vars) <- names(gin@vars[[1]])
 
     R = new("FDiff",F=c(F),J=Matrix(M,sparse=T),vars=gin@vars)
 
@@ -42,13 +48,17 @@ SplineInt1D <- function(xsupp,ivals) {
     M = matrix(0,nrow=nrow(cc) , ncol = length(ain@F))
     
     for (i in ivals) { # quite inneficient!
-      I = which(cc$z==i)
+      I = which(zin==i)
       J = 1:Nx # we need all functional parameters
       D = splineDesign(xknots,ain[I],deriv=rep(1,length(ain[I])))
-      M[I,I] = diag(c(D %*% gin[J]))
+      if (getOption('mpeccable.coloring')) {
+        M[I,I] = diag(length(I))  
+      } else {
+        M[I,I] = diag(c(D %*% gin[J]))   
+      }
     }
 
-    R = appendJac(R,Matrix(M,sparse=T),gin@vars)
+    R = appendJac(R,Matrix(M,sparse=T),ain@vars)
   }
 
   return(R)
@@ -71,6 +81,17 @@ test.it <- function() {
   a_ = FDiff(cc$a,'a')
 
   V = SplineInt1D(xsupp,ivals)
+
+  options(mpeccable.coloring=TRUE)
+  R = V(cc$a,cc$z,g.)
+  R = V(a_,  cc$z,g.)
+
+  # create a low of motion matrix, where 1->2 , 2->3, 3->1
+  z1 = (cc$z %% 3)+ 1 
+
+  # create a simple Euler Equation
+  R2 = V(cc$a,cc$z,g.) + 0.9 * V(a_,z1,g.)
+
 }
 
 # one thing is missing, is how to do t-1
