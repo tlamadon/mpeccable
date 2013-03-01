@@ -90,7 +90,8 @@ test.it <- function() {
   z1 = (cc$z %% 3)+ 1 
 
   # create a simple Euler Equation
-  R2 = V(cc$a,cc$z,g.) + 0.9 * V(a_,z1,g.)
+  R2 = a_ + V(cc$a,cc$z,g.) + 0.9 * V(a_,z1,g.)
+  image(R2@J)
 
 }
 
