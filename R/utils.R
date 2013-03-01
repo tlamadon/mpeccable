@@ -44,3 +44,17 @@ mergevars <- function(v1,v2) {
   }
   v1
 }
+
+#' get spline representation
+splineKnots <- function(support) {
+  fit   = smooth.spline(support,support)
+  knots = fit$fit$knot * fit$fit$range + fit$fit$min
+  return(list(knots = knots, N = fit$fit$nk))
+}
+
+Var <- function(name,size) {
+  l = list()
+  l[[name]]=size
+  return(l)
+}
+

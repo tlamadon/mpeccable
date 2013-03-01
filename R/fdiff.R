@@ -113,6 +113,13 @@ setGeneric("pMax", function(e1,e2) {
   standardGeneric("pMax")
 })
 
+# initializes a variable it's NxN, F is x and J is diag(1)
+#' @export
+setGeneric("appendJac", function(x,J,vs) {
+    standardGeneric("appendJac")
+})
+
+
 #' like pmax, take the max between two values. It works on vector and
 #' computes the Jacobian correctly
 #' @docType methods
@@ -130,6 +137,16 @@ setMethod("pMax", c("FDiff","numeric"), function(e1,e2) {
   e1
 })
 
+#' append to Jac
+#' @docType methods
+#' @rdname fdiff-methods
+#' @export
+setMethod("appendJac", c("FDiff","dsCMatrix","list"), function(x,J,vs) { 
+  x@J = cBind(x@J,J)
+  x@vars = c(x@vars,vs)
+  x
+})
+
 #' like rBind, combines the levels and jacobian, however
 #' it makes the variables of the Jacobian consistent 
 #' @docType methods
@@ -145,6 +162,17 @@ setMethod("rbind2", c("FDiff","FDiff"), function(x,y) {
   x
 })
 
+#' allows accessing the levels directly, this is convenient
+#' within the code
+#' @export
+setMethod(
+  f= "[",
+  signature="FDiff",
+  definition=function(x,i){
+    return(x@F[i])
+  }
+)
+
 #' creates a variable to be tracked by the computation of the Jacobian
 #' @param x a vector of current values
 #' @param name a anme that uniquly identify this variable in the overall
@@ -155,6 +183,8 @@ FDiff <- function(x, name) {
   vars[name] = N
   new("FDiff",x,Matrix(diag(rep(1,N)),sparse=TRUE),vars)
 }
+
+
 
 
 setMethod("Ops", c("FDiff","FDiff"), function(e1,e2) {})
