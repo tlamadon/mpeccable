@@ -4,7 +4,11 @@
 expandJacDomain <- function(e1, vars) {
 
   # check if anything is to be done
-  if (setequal(names(e1@vars), names(vars))) return(e1);
+  # we need both the same set of variables
+  # and the same order
+  if (setequal(names(e1@vars), names(vars))) {
+    if(all(names(e1@vars)==names(vars))) return(e1);
+  }
 
   # we merge the variable lists
   range1 = computeVarRanges(e1@vars)

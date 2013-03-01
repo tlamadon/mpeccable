@@ -5,6 +5,7 @@
 #' element approach. 
 #'
 #' @import Matrix
+#' @import data.table
 #' @docType package
 #' @name fdiff
 #' @rd-name fdiff

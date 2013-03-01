@@ -1,6 +1,3 @@
-
-
-
 # example 1: cake eating in stationary environent
 #================================================
 
@@ -46,7 +43,7 @@ library(data.table)
 library(Matrix)
 h <- data.table(coloc=rep(1:nA,3), var=rep(c("err.1","err.2","saving"),each=nA))
 h <- rbind(h,data.table(coloc=1:M, var="gamma"))
-h[,idx := 1:nrow(h)]
+#h[,idx := 1:nrow(h)]
 stopifnot(nrow(h)==N)
 setkey(h,var)
 

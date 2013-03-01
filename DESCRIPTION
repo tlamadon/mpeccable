@@ -5,7 +5,8 @@ Title: evaluate residual and their jocabian for function equation using
 Version: 0.1
 Date: 2012-12-13
 Author: Thibaut Lamadon
-Maintainer: Thibaut Lamadon <thibaut.lamadon@gmail.com>
+Maintainer: Thibaut Lamadon <thibaut.lamadon@gmail.com>, Florian Oswald
+    <florian.oswald@gmail.com>
 Description: More about what it does (maybe more than one line)
 License: MIT:wq
 Collate:
@@ -16,3 +17,5 @@ Collate:
     'frepSpline2D.R'
     'frepSpline3D.R'
     'scartch.r'
+    'cake.r'
+    'F_SplineInt1D.r'
