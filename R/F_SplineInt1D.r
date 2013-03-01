@@ -1,3 +1,6 @@
+require(splines)
+require(Matrix)
+
 #' implements a 1 dimensional spline representation of a function.
 #' it inherits from FRep which you should refer to to get more
 #' details on how to use those functions

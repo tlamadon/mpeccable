@@ -1,15 +1,3 @@
-#' fdiff
-#'
-#' FDiff is a pacakge to facilitate the solving of functional equation
-#' with control variables. The method is built around the general finite
-#' element approach. 
-#'
-#' @import Matrix
-#' @import data.table
-#' @docType package
-#' @name fdiff
-#' @rd-name fdiff
-
 # rutn the following command to reload dev package
 # roxygenise('~/git/fdiff');install('~/git/fdiff')
 
@@ -20,6 +8,7 @@
 # ==========
 # Defining the main dif class that will sotre the 
 # values and the hessian
+require(Matrix)
 
 #' @export
 setClass("FDiff", 
@@ -164,7 +153,8 @@ setMethod("rbind2", c("FDiff","FDiff"), function(x,y) {
 
 #' allows accessing the levels directly, this is convenient
 #' within the code
-#' @export
+#' @method [ FDiff
+#' @name extract 
 setMethod(
   f= "[",
   signature="FDiff",
@@ -183,9 +173,6 @@ FDiff <- function(x, name) {
   vars[name] = N
   new("FDiff",x,Matrix(diag(rep(1,N)),sparse=TRUE),vars)
 }
-
-
-
 
 setMethod("Ops", c("FDiff","FDiff"), function(e1,e2) {})
 
