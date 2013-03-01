@@ -1,5 +1,6 @@
 # define the support of the function
-xsupp  = seq(0,1,l=10)
+Nx = 10
+xsupp  = seq(0,1,l=Nx)
 ivals  = 1:3
 
 # define a simple collocation

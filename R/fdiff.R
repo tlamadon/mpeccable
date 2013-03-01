@@ -10,7 +10,6 @@
 #' @name fdiff
 #' @rd-name fdiff
 
-
 # rutn the following command to reload dev package
 # roxygenise('~/git/fdiff');install('~/git/fdiff')
 
