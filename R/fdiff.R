@@ -93,8 +93,12 @@ setMethod("initialize", "FDiff", function(.Object,F,J,vars) {
 # initializes a variable it's NxN, F is x and J is diag(1)
 #'@export
 setMethod("print", "FDiff", function(x) { 
-  cat('FDiff object (', length(x@F) , 'x' , ncol(x@J), ') dense:', length(x@J@x)/prod(dim(x@J))  ,'% \n')
-  })
+  if (length(x@F)!=0){
+  	cat('FDiff object (', length(x@F) , 'x' , ncol(x@J), ') dense:', length(x@J@x)/prod(dim(x@J))  ,'% \n')
+  } else {
+	  cat("empty FDiff object\n")
+}
+})
 
 # initializes a variable it's NxN, F is x and J is diag(1)
 #' @export
@@ -188,9 +192,24 @@ setMethod("Ops", c("FDiff","FDiff"), function(e1,e2) {})
 # let's first look at a one dimensional spline
 
 
+#' SolveDiff object
+#' takes an FDiff object and runs the opimization on ipoptr
+#' @param F a functional representation of the problem
+#' @param x0 a starting value for the optimization
+#' @param ub a vector of upper bounds
+#` @param lb a vector of lower bounds
+
+# methods: 
+# setConstraintBounds
+# setChoicevarBounds
+# setStopping
+# getConstraintBounds
+# getChoicevarBounds
+# getStopping
 
 
 
+# is setGeneric similar to a "virtual" class in c++?
 ##########################
 # knot selector
 ##########################
