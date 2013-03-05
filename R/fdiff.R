@@ -25,9 +25,9 @@ setMethod("*", c("FDiff","numeric"), function(e1,e2) { e1@F = e1@F*e2;e1@J = e1@
 #'@export
 setMethod("+", c("numeric","FDiff"), function(e1,e2) { e2@F = e2@F+e1;e2}) 
 #'@export
-setMethod("-", c("numeric","FDiff"), function(e1,e2) { e2@F = e2@F-e1;e2}) 
+setMethod("-", c("numeric","FDiff"), function(e1,e2) { e2@F = e1 - e2@F;e2@J = - e2@J; e2}) 
 #'@export
-setMethod("/", c("numeric","FDiff"), function(e1,e2) { e2@F = e2@F/e1;e2@J = e2@J/e1 ; e2}) 
+setMethod("/", c("numeric","FDiff"), function(e1,e2) { e2@F = e1/e2@F ; e2@J = -e1/(e2@J)^2 ; e2}) 
 #'@export
 setMethod("*", c("numeric","FDiff"), function(e1,e2) { e2@F = e2@F*e1;e2@J = e2@J*e1 ; e2}) 
 #'@export
@@ -134,7 +134,7 @@ setMethod("pMax", c("FDiff","numeric"), function(e1,e2) {
 #' @docType methods
 #' @rdname fdiff-methods
 #' @export
-setMethod("appendJac", c("FDiff","dsCMatrix","list"), function(x,J,vs) { 
+setMethod("appendJac", c("FDiff","sparseMatrix","list"), function(x,J,vs) { 
   x@J = cBind(x@J,J)
   x@vars = c(x@vars,vs)
   x
