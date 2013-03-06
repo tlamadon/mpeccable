@@ -4,6 +4,11 @@ require(Matrix)
 
 F_crra <- function(xsupp,ivals){
 
+	# this is the function
+	# f(x) = x^b
+	# where x = ain
+	#       b = gin
+
 	n <- length(xsupp)
 
 	ff <- function(ain,zin,gin){
