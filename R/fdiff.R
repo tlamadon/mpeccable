@@ -29,11 +29,42 @@ setClass("FDiff",
 # TODO: throw some error maybe if we have non-positive numbers?
 setMethod("log", "FDiff", function(x) {
     # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
-    x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=T) %*% x@J
+    x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=TRUE) %*% x@J
     x@F = log(x@F)
     x@formula.gradient = paste( "1 / ( ", x@formula.levels, " ) %*% ( ", x@formula.gradient, " )", sep='' )
     x@formula.levels   = paste( "log( ", x@formula.levels, " )", sep='' )
     return( x ) 
+})
+
+# Unary operator(+)
+#'@export
+setMethod("+", c("FDiff","missing"), function(e1,e2) {
+    e1@F = e1@F
+    e1@J = e1@J
+    e1@formula.levels   = paste( "+( ", e1@formula.levels, " )", sep='' )
+    e1@formula.gradient = paste( "+( ", e1@formula.gradient, " )", sep='' )
+    return( e1 )
+})
+
+# Unary operator(-)
+#'@export
+setMethod("-", c("FDiff","missing"), function(e1,e2) {
+    e1@F = -e1@F
+    e1@J = -e1@J
+    e1@formula.levels   = paste( "-( ", e1@formula.levels, " )", sep='' )
+    e1@formula.gradient = paste( "-( ", e1@formula.gradient, " )", sep='' )
+    return( e1 )
+})
+
+#'@export
+# TODO: is there a better way to find out the number of variables in a FDiff, rather
+# than using length( x@F )?
+setMethod("sum", "FDiff", function(x) {
+    x@J = Matrix( 1, nrow=1, ncol=length(x@F), sparse=TRUE ) %*% x@J
+    x@F = sum( x@F )
+    x@formula.levels   = paste( "sum( ", x@formula.levels, " )", sep='' )
+    x@formula.gradient = paste( "colSums or ones %*%( ", x@formula.gradient, " )", sep='' )
+    return( x )
 })
 
 #'@export
