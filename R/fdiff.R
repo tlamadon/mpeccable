@@ -1,3 +1,8 @@
+# TODO: diag( x ) returns an error
+# if x is of length 1, and it is not equal to an integer.
+# If it is an integer, then a diagonal matrix with ones of size integer is returned.
+# This is not what we want, so we have to specify ncol, nrow in all diag statements.
+
 # rutn the following command to reload dev package
 # roxygenise('~/git/fdiff');install('~/git/fdiff')
 
@@ -12,26 +17,99 @@ require(Matrix)
 
 #' @export
 setClass("FDiff", 
-    representation(F = "numeric", J = "sparseMatrix", vars="list", coloring='logical'))
+    representation(
+        F                = "numeric", 
+        J                = "sparseMatrix",
+        vars             = "list", 
+        formula.levels   = "character",
+        formula.gradient = "character",
+        coloring         = "logical" ) )
 
 #'@export
-setMethod("+", c("FDiff","numeric"), function(e1,e2) { e1@F = e1@F+e2; e1}) 
+# TODO: throw some error maybe if we have non-positive numbers?
+setMethod("log", "FDiff", function(x) {
+    # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
+    x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=T) %*% x@J
+    x@F = log(x@F)
+    x@formula.gradient = paste( "1 / ( ", x@formula.levels, " ) %*% ( ", x@formula.gradient, " )", sep='' )
+    x@formula.levels   = paste( "log( ", x@formula.levels, " )", sep='' )
+    return( x ) 
+})
+
 #'@export
-setMethod("-", c("FDiff","numeric"), function(e1,e2) { e1@F = e1@F-e2;e1}) 
+setMethod("+", c("FDiff","numeric"), function(e1,e2) {
+    e1@F = e1@F+e2
+    e1@formula.levels = paste( e1@formula.levels, " + ", e2, sep='' )
+    return( e1 ) 
+})
+
 #'@export
-setMethod("/", c("FDiff","numeric"), function(e1,e2) { e1@F = e1@F/e2;e1@J = e1@J/e2 ; e1}) 
+setMethod("-", c("FDiff","numeric"), function(e1,e2) {
+    e1@F = e1@F-e2
+    e1@formula.levels = paste( e1@formula.levels, " - ", e2, sep='' )
+    return( e1 )
+})
+
 #'@export
-setMethod("*", c("FDiff","numeric"), function(e1,e2) { e1@F = e1@F*e2;e1@J = e1@J*e2 ; e1}) 
+setMethod("/", c("FDiff","numeric"), function(e1,e2) {
+    e1@F = e1@F/e2
+    e1@J = e1@J/e2
+    e1@formula.levels   = paste( "( ", e1@formula.levels, ") / ", e2, sep='' )
+    e1@formula.gradient = paste( "( ", e1@formula.gradient, ") / ", e2, sep='' )
+    return( e1 )
+})
+
 #'@export
-setMethod("+", c("numeric","FDiff"), function(e1,e2) { e2@F = e2@F+e1;e2}) 
+setMethod("*", c("FDiff","numeric"), function(e1,e2) {
+    e1@F = e1@F*e2
+    e1@J = e1@J*e2
+    e1@formula.levels   = paste( "( ", e1@formula.levels, " ) * ", e2, sep='' )
+    e1@formula.gradient = paste( "( ", e1@formula.gradient, " ) * ", e2, sep='' )
+    return( e1 )
+})
+
 #'@export
-setMethod("-", c("numeric","FDiff"), function(e1,e2) { e2@F = e1 - e2@F;e2@J = - e2@J; e2}) 
+setMethod("+", c("numeric","FDiff"), function(e1,e2) {
+    e2@F = e2@F+e1
+    e2@formula.levels   = paste( e1, " + ", e2@formula.levels, sep='' )
+    return( e2 )
+})
+
 #'@export
-setMethod("/", c("numeric","FDiff"), function(e1,e2) { e2@F = e1/e2@F ; e2@J = -e1/(e2@J)^2 ; e2}) 
+setMethod("-", c("numeric","FDiff"), function(e1,e2) {
+    e2@F = e1 - e2@F
+    e2@J = - e2@J
+    e2@formula.levels   = paste( e1, " - ( ", e2@formula.levels, " )", sep='' )
+    e2@formula.gradient = paste( "-( ", e2@formula.gradient, " )", sep='' )
+    return( e2 )
+})
+
 #'@export
-setMethod("*", c("numeric","FDiff"), function(e1,e2) { e2@F = e2@F*e1;e2@J = e2@J*e1 ; e2}) 
+setMethod("/", c("numeric","FDiff"), function(e1,e2) {
+    e2@F = e1/e2@F
+    e2@J = -e1/(e2@J)^2
+    e2@formula.levels   = paste( e1, " / ( ", e2@formula.levels, " )", sep='' )
+    e2@formula.gradient = paste( "-", e1, " / (", e2@formula.gradient, ")^2", sep='' )
+    return( e2 )
+})
+
 #'@export
-setMethod("%*%", c("matrix","FDiff"), function(x,y) { y@F = as.numeric(x %*% y@F); y@J = Matrix(x,sparse=TRUE)%*%y@J ; y}) 
+setMethod("*", c("numeric","FDiff"), function(e1,e2) {
+    e2@F = e2@F*e1
+    e2@J = e2@J*e1
+    e2@formula.levels   = paste( e1, " * ( ", e2@formula.levels, " )", sep='' )
+    e2@formula.gradient = paste( e1, " * ( ", e2@formula.gradient, " )", sep='' )
+    return( e2 )
+})
+
+#'@export
+setMethod("%*%", c("matrix","FDiff"), function(x,y) {
+    y@F = as.numeric(x %*% y@F)
+    y@J = Matrix(x,sparse=TRUE)%*%y@J
+    y@formula.levels   = paste( "Matrix (with name?)", " %*% ( ", y@formula.levels, " )", sep='' )
+    y@formula.gradient = paste( "Matrix (with name?)", " %*% ( ", y@formula.gradient, " )", sep='' )
+    return( y )
+})
 
 #'@export
 setMethod("+", c("FDiff","FDiff"), 
@@ -80,19 +158,15 @@ setMethod("^", c("FDiff","numeric"),
     e1@F = (e1@F)^e2
     e1
   })
-#'@export
-setMethod("log", "FDiff", 
-  function (x) {
-    x@J = Matrix(diag(1/(x@F)),sparse=T) %*% x@J
-    x@F = log(x@F)
-    x
-  })
+
 # initializes a variable it's NxN, F is x and J is diag(1)
 #'@export
-setMethod("initialize", "FDiff", function(.Object,F,J,vars) { 
+setMethod("initialize", "FDiff", function(.Object,F,J,vars,name) { 
   .Object@F <- F
   .Object@J <- J
   .Object@vars <- vars
+  .Object@formula.levels <- names(vars)
+  .Object@formula.gradient <- "1.0"
   .Object@coloring=FALSE
   .Object
   })
@@ -182,7 +256,10 @@ FDiff <- function(x, name) {
   N = length(x)
   vars = list()
   vars[name] = N
-  new("FDiff",x,Matrix(diag(rep(1,N)),sparse=TRUE),vars)
+  new("FDiff",
+    F    = x,
+    J    = Matrix(diag(rep(1,N)), sparse = TRUE),
+    vars = vars)
 }
 
 setMethod("Ops", c("FDiff","FDiff"), function(e1,e2) {})
