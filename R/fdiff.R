@@ -80,6 +80,13 @@ setMethod("^", c("FDiff","numeric"),
     e1@F = (e1@F)^e2
     e1
   })
+#'@export
+setMethod("log", "FDiff", 
+  function (x) {
+    x@J = Matrix(diag(1/(x@F)),sparse=T) %*% x@J
+    x@F = log(x@F)
+    x
+  })
 # initializes a variable it's NxN, F is x and J is diag(1)
 #'@export
 setMethod("initialize", "FDiff", function(.Object,F,J,vars) { 
