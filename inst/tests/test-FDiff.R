@@ -4,7 +4,44 @@ context("FDiff")
 
 source("helper-finite-diff.R")
 
-test_that("test log(FDiff)", {
+test_that("Test Operator(FDiff, numeric) where FDiff is scalar.", {
+    # Check Operator( x., v ) with one value at x.=1.0 and a scalar v.
+    xval  <- 1.0
+    v     <- 2.0
+    x.    <- FDiff( x=xval, name='x' )
+    
+    # Operator('+')
+    fx.   <- x. + v
+    expect_that( fx.@F, equals( xval + v ) )
+    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x + v }, .x = xval ), sparse=TRUE ), "dsCMatrix" ) ) )
+    
+    # Operator('-')
+    fx.   <- x. - v
+    expect_that( fx.@F, equals( xval - v ) )
+    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x - v }, .x = xval ), sparse=TRUE ), "dsCMatrix" ) ) )
+    
+    # Operator('*')
+    fx.   <- x. * v
+    expect_that( fx.@F, equals( xval * v ) )
+    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x * v }, .x = xval ), sparse=TRUE ), "dsCMatrix" ) ) )
+    
+    # Operator('/')
+    fx.   <- x. / v
+    expect_that( fx.@F, equals( xval / v ) )
+    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x / v }, .x = xval ), sparse=TRUE ), "dsCMatrix" ) ) )
+    
+    # Check Operator( x., v ) with one value at x.=1.0, and a vector v. Should result in error.
+    xval  <- 1.0
+    v     <- c(2.0,3.0)
+    x.    <- FDiff( x=xval, name='x' )
+    
+    expect_that( x. + v, throws_error() )       # Operator('+')
+    expect_that( x. - v, throws_error() )       # Operator('-')
+    expect_that( x. * v, throws_error() )       # Operator('*')
+    expect_that( x. / v, throws_error() )       # Operator('/')
+} )
+
+test_that("Test log(FDiff).", {
     # Check log( x. ) with one value at x.=1.0.
     xval  <- 1.0
     x.    <- FDiff( x=xval, name='x' )
