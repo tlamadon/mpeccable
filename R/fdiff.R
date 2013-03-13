@@ -21,8 +21,6 @@ setClass("FDiff",
         F                = "numeric", 
         J                = "sparseMatrix",
         vars             = "list", 
-        formula.levels   = "character",
-        formula.gradient = "character",
         coloring         = "logical" ) )
 
 # Constructor.
@@ -32,8 +30,6 @@ setMethod("initialize", "FDiff", function(.Object,F,J,vars,name) {
     .Object@F <- F
     .Object@J <- J
     .Object@vars <- vars
-    .Object@formula.levels <- names(vars)
-    .Object@formula.gradient <- "1.0"
     .Object@coloring=FALSE
     .Object
 })
@@ -59,8 +55,6 @@ setMethod("print", "FDiff", function(x) {
 setMethod("+", c("FDiff","missing"), function(e1,e2) {
     e1@F = e1@F
     e1@J = e1@J
-    e1@formula.levels   = paste( "+( ", e1@formula.levels, " )", sep='' )
-    e1@formula.gradient = paste( "+( ", e1@formula.gradient, " )", sep='' )
     return( e1 )
 })
 
@@ -69,8 +63,6 @@ setMethod("+", c("FDiff","missing"), function(e1,e2) {
 setMethod("-", c("FDiff","missing"), function(e1,e2) {
     e1@F = -e1@F
     e1@J = -e1@J
-    e1@formula.levels   = paste( "-( ", e1@formula.levels, " )", sep='' )
-    e1@formula.gradient = paste( "-( ", e1@formula.gradient, " )", sep='' )
     return( e1 )
 })
 
@@ -88,14 +80,12 @@ setMethod("Ops", c("FDiff","numeric"), function(e1,e2) {
 #'@export
 setMethod("+", c("FDiff","numeric"), function(e1,e2) {
     e1@F = e1@F+e2
-    e1@formula.levels = paste( e1@formula.levels, " + ", e2, sep='' )
     return( e1 ) 
 })
 
 #'@export
 setMethod("-", c("FDiff","numeric"), function(e1,e2) {
     e1@F = e1@F-e2
-    e1@formula.levels = paste( e1@formula.levels, " - ", e2, sep='' )
     return( e1 )
 })
 
@@ -103,8 +93,6 @@ setMethod("-", c("FDiff","numeric"), function(e1,e2) {
 setMethod("/", c("FDiff","numeric"), function(e1,e2) {
     e1@F = e1@F/e2
     e1@J = e1@J/e2
-    e1@formula.levels   = paste( "( ", e1@formula.levels, ") / ", e2, sep='' )
-    e1@formula.gradient = paste( "( ", e1@formula.gradient, ") / ", e2, sep='' )
     return( e1 )
 })
 
@@ -112,8 +100,6 @@ setMethod("/", c("FDiff","numeric"), function(e1,e2) {
 setMethod("*", c("FDiff","numeric"), function(e1,e2) {
     e1@F = e1@F*e2
     e1@J = e1@J*e2
-    e1@formula.levels   = paste( "( ", e1@formula.levels, " ) * ", e2, sep='' )
-    e1@formula.gradient = paste( "( ", e1@formula.gradient, " ) * ", e2, sep='' )
     return( e1 )
 })
 
@@ -138,7 +124,6 @@ setMethod("Ops", c("numeric","FDiff"), function(e1,e2) {
 #'@export
 setMethod("+", c("numeric","FDiff"), function(e1,e2) {
     e2@F = e2@F+e1
-    e2@formula.levels   = paste( e1, " + ", e2@formula.levels, sep='' )
     return( e2 )
 })
 
@@ -146,8 +131,6 @@ setMethod("+", c("numeric","FDiff"), function(e1,e2) {
 setMethod("-", c("numeric","FDiff"), function(e1,e2) {
     e2@F = e1 - e2@F
     e2@J = - e2@J
-    e2@formula.levels   = paste( e1, " - ( ", e2@formula.levels, " )", sep='' )
-    e2@formula.gradient = paste( "-( ", e2@formula.gradient, " )", sep='' )
     return( e2 )
 })
 
@@ -155,8 +138,6 @@ setMethod("-", c("numeric","FDiff"), function(e1,e2) {
 setMethod("/", c("numeric","FDiff"), function(e1,e2) {
     e2@F = e1/e2@F
     e2@J = -e1/(e2@J)^2
-    e2@formula.levels   = paste( e1, " / ( ", e2@formula.levels, " )", sep='' )
-    e2@formula.gradient = paste( "-", e1, " / (", e2@formula.gradient, ")^2", sep='' )
     return( e2 )
 })
 
@@ -164,8 +145,6 @@ setMethod("/", c("numeric","FDiff"), function(e1,e2) {
 setMethod("*", c("numeric","FDiff"), function(e1,e2) {
     e2@F = e2@F*e1
     e2@J = e2@J*e1
-    e2@formula.levels   = paste( e1, " * ( ", e2@formula.levels, " )", sep='' )
-    e2@formula.gradient = paste( e1, " * ( ", e2@formula.gradient, " )", sep='' )
     return( e2 )
 })
 
@@ -230,8 +209,6 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
 setMethod("%*%", c("matrix","FDiff"), function(x,y) {
     y@F = as.numeric(x %*% y@F)
     y@J = Matrix(x,sparse=TRUE) %*% y@J
-    y@formula.levels   = paste( "Matrix (with name?)", " %*% ( ", y@formula.levels, " )", sep='' )
-    y@formula.gradient = paste( "Matrix (with name?)", " %*% ( ", y@formula.gradient, " )", sep='' )
     return( y )
 })
 
@@ -247,8 +224,6 @@ setMethod("log", "FDiff", function(x) {
     # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
     x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=TRUE) %*% x@J
     x@F = log(x@F)
-    x@formula.gradient = paste( "1 / ( ", x@formula.levels, " ) %*% ( ", x@formula.gradient, " )", sep='' )
-    x@formula.levels   = paste( "log( ", x@formula.levels, " )", sep='' )
     return( x ) 
 })
 
@@ -264,8 +239,6 @@ setMethod("log", "FDiff", function(x) {
 setMethod("sum", "FDiff", function(x) {
     x@J = Matrix( 1, nrow=1, ncol=length(x@F), sparse=TRUE ) %*% x@J
     x@F = sum( x@F )
-    x@formula.levels   = paste( "sum( ", x@formula.levels, " )", sep='' )
-    x@formula.gradient = paste( "colSums or ones %*%( ", x@formula.gradient, " )", sep='' )
     return( x )
 })
 
