@@ -12,7 +12,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
   xknots = splineKnots(xsupp)$knots
   Nx     = splineKnots(xsupp)$N
 
- ff <- function(ain,zin,gin) {
+ ff <- function(ain,zin,gin,deriv=0) {
 
   # take care of the function representation
   # for sure gin is a fdiff, otherwise, makes not sense
@@ -28,7 +28,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
       if (is.fdiff(ain) & getOption('mpeccable.coloring')) {
         D = array(1,c(length(I),length(J)))
       } else {
-        D = splineDesign(xknots,ain[I],outer.ok = TRUE)        
+        D = splineDesign(xknots,ain[I],outer.ok = TRUE,derivs = rep(deriv,length(ain[I])))        
       }
       M[I,J] = D
       F[I]   = F[I] + c(D %*% gin@F[J])
@@ -49,7 +49,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
     for (i in ivals) { # quite inneficient!
       I  = which(zin==i)
       J  = 1:Nx # we need all functional parameters
-      D = splineDesign(xknots,ain[I],deriv=rep(1,length(ain[I])),outer.ok = TRUE)
+      D = splineDesign(xknots,ain[I],deriv=rep(1+deriv,length(ain[I])),outer.ok = TRUE)
       if (getOption('mpeccable.coloring')) {
         M[I,I] = diag(length(I))  
       } else {

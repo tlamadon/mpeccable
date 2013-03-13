@@ -14,15 +14,18 @@ Depends:
     splines,
     data.table,
     digest (>= 0.5.1)
-Suggests: 
+Suggests:
     testthat
 Collate:
-    'fdiff.R'
     'utils.R'
-    'frep.R'
     'frepSpline1D.R'
     'frepSpline2D.R'
     'frepSpline3D.R'
     'cake.r'
     'F_SplineInt1D.r'
     'mpeccable-package.r'
+    'FDiff.R'
+    'FRep.R'
+    'scartch.r'
+    'utilsSpline.R'
+    'SolveDiff.R'

@@ -16,6 +16,8 @@
 #' @param x0 a starting value for the optimization
 #' @param ub a vector of upper bounds
 #` @param lb a vector of lower bounds
+setClass("SolveDiff", 
+    representation(a="numeric") )
 
 # methods: 
 # setConstraintBounds
@@ -24,3 +26,4 @@
 # getConstraintBounds
 # getChoicevarBounds
 # getStopping
+
