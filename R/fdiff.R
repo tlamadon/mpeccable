@@ -79,18 +79,27 @@ setMethod("Ops", c("FDiff","numeric"), function(e1,e2) {
 
 #'@export
 setMethod("+", c("FDiff","numeric"), function(e1,e2) {
+    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
+        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    }
     e1@F = e1@F+e2
     return( e1 ) 
 })
 
 #'@export
 setMethod("-", c("FDiff","numeric"), function(e1,e2) {
+    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
+        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    }
     e1@F = e1@F-e2
     return( e1 )
 })
 
 #'@export
 setMethod("/", c("FDiff","numeric"), function(e1,e2) {
+    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
+        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    }
     e1@F = e1@F/e2
     e1@J = e1@J/e2
     return( e1 )
@@ -98,6 +107,9 @@ setMethod("/", c("FDiff","numeric"), function(e1,e2) {
 
 #'@export
 setMethod("*", c("FDiff","numeric"), function(e1,e2) {
+    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
+        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    }
     e1@F = e1@F*e2
     e1@J = e1@J*e2
     return( e1 )
@@ -105,6 +117,9 @@ setMethod("*", c("FDiff","numeric"), function(e1,e2) {
 
 #'@export
 setMethod("^", c("FDiff","numeric"), function (e1, e2) {
+    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
+        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    }
     e1@J = e2 * Matrix(diag((e1@F)^(e2-1)),sparse=T) %*% e1@J 
     e1@F = (e1@F)^e2
     return( e1 )
@@ -123,12 +138,18 @@ setMethod("Ops", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("+", c("numeric","FDiff"), function(e1,e2) {
+    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
+        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    }
     e2@F = e2@F+e1
     return( e2 )
 })
 
 #'@export
 setMethod("-", c("numeric","FDiff"), function(e1,e2) {
+    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
+        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    }
     e2@F = e1 - e2@F
     e2@J = - e2@J
     return( e2 )
@@ -136,6 +157,9 @@ setMethod("-", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("/", c("numeric","FDiff"), function(e1,e2) {
+    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
+        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    }
     e2@F = e1/e2@F
     e2@J = -e1/(e2@J)^2
     return( e2 )
@@ -143,6 +167,9 @@ setMethod("/", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("*", c("numeric","FDiff"), function(e1,e2) {
+    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
+        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    }
     e2@F = e2@F*e1
     e2@J = e2@J*e1
     return( e2 )
