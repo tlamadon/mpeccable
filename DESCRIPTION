@@ -3,7 +3,7 @@ Type: Package
 Title: Functional constrained optimization
 Version: 0.1
 Date: 2012-12-13
-Author: Thibaut Lamadon, Florian Oswald
+Author: Thibaut Lamadon, Florian Oswald, Jelmer Ypma
 Maintainer: Thibaut Lamadon <thibaut.lamadon@gmail.com>, Florian Oswald
     <florian.oswald@gmail.com>, Jelmer Ypma <jelmerypma@gmail.com>
 Description: More about what it does (maybe more than one line)
@@ -26,6 +26,5 @@ Collate:
     'mpeccable-package.r'
     'FDiff.R'
     'FRep.R'
-    'scartch.r'
     'utilsSpline.R'
     'SolveDiff.R'
