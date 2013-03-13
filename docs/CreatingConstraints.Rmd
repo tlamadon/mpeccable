@@ -17,7 +17,7 @@ the future at rate $latex r$ and earns the same interest on savings. We use `log
 The dynamic problem is simply represented using $latex V_z(\cdot):\mathbb{R}\times\mathbb{N} \to \mathbb{R}$ implicitely defined by the following Bellman equation:
 
 $$latex
-  V_z(a) = \max_{a'} u(a'-(1+r) \cdot a) + \frac{1}{1+R} E_{z'|z} V_{z'}(a')
+  V_z(a) = \max_{a'} u((1+r) a -a') + \frac{1}{1+r} E_{z'|z} V_{z'}(a')
 $$
 
 ### The collocation
@@ -77,7 +77,8 @@ Then the left part has big blocks. This is because the control the spline is eva
 
 We choose a simple utilty CRRA utility function with parameter $latex 0.5$ and we use interest rate of 5%
 ```{r}
-U = ( (1+0.05) * cc$a -  a_ )^0.5
+U  = ( (1+0.05) * cc$a -  a_ )^0.5
+Up = .5*( (1+0.05) * cc$a -  a_ )^(1-0.5)
 ```
 For simplicity, assumes that `z` goes in circle, from 1, to 2, to 3 and back to 1, I can define `z` tommorow as:
 ```{r}
@@ -93,6 +94,22 @@ And this is the Jacobian for our Bellman equation, now we need to add the first 
 
 ### First order condition, Euler equation
 
-The last equation we need to garantee optimally, is the first order condition. I need to finish this.
+The last equation we need to garantee optimally, is the first order condition. 
+
+$$latex
+  u'((1+r) a -a') =  \frac{1}{1+r} E_{z'|z} V'_{z'}(a')
+$$
+
+```{r, simpleplot3,fig.align='center'}
+R2 =  Up - 0.95*V(a_,z1,g.,deriv=1)
+image(R@J)
+```
+
+### Combine all the constraints
+
+```{r, simpleplot3,fig.align='center'}
+R2 =  Up - 0.95*V(a_,z1,g.,deriv=1)
+image(R@J)
+```
 
 
