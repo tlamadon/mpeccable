@@ -25,16 +25,34 @@ setClass("FDiff",
         formula.gradient = "character",
         coloring         = "logical" ) )
 
+# Constructor.
+# initializes a variable it's NxN, F is x and J is diag(1)
 #'@export
-# TODO: throw some error maybe if we have non-positive numbers?
-setMethod("log", "FDiff", function(x) {
-    # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
-    x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=TRUE) %*% x@J
-    x@F = log(x@F)
-    x@formula.gradient = paste( "1 / ( ", x@formula.levels, " ) %*% ( ", x@formula.gradient, " )", sep='' )
-    x@formula.levels   = paste( "log( ", x@formula.levels, " )", sep='' )
-    return( x ) 
+setMethod("initialize", "FDiff", function(.Object,F,J,vars,name) { 
+    .Object@F <- F
+    .Object@J <- J
+    .Object@vars <- vars
+    .Object@formula.levels <- names(vars)
+    .Object@formula.gradient <- "1.0"
+    .Object@coloring=FALSE
+    .Object
 })
+
+# Print FDiff object.
+#'@export
+setMethod("print", "FDiff", function(x) { 
+    if (length(x@F)!=0){
+        cat('FDiff object (', length(x@F) , 'x' , ncol(x@J), ') dense:', length(x@J@x)/prod(dim(x@J))  ,'% \n')
+    } else {
+        cat("empty FDiff object\n")
+    }
+})
+
+##
+#
+# Unary operators.
+#
+##
 
 # Unary operator(+)
 #'@export
@@ -56,15 +74,15 @@ setMethod("-", c("FDiff","missing"), function(e1,e2) {
     return( e1 )
 })
 
-#'@export
-# TODO: is there a better way to find out the number of variables in a FDiff, rather
-# than using length( x@F )?
-setMethod("sum", "FDiff", function(x) {
-    x@J = Matrix( 1, nrow=1, ncol=length(x@F), sparse=TRUE ) %*% x@J
-    x@F = sum( x@F )
-    x@formula.levels   = paste( "sum( ", x@formula.levels, " )", sep='' )
-    x@formula.gradient = paste( "colSums or ones %*%( ", x@formula.gradient, " )", sep='' )
-    return( x )
+##
+#
+# Binary operators("FDiff","numeric")
+#
+##
+
+# By default, the operator is not defined.
+setMethod("Ops", c("FDiff","numeric"), function(e1,e2) {
+    stop('Operator on FDiff and numeric not yet implemented.')
 })
 
 #'@export
@@ -97,6 +115,24 @@ setMethod("*", c("FDiff","numeric"), function(e1,e2) {
     e1@formula.levels   = paste( "( ", e1@formula.levels, " ) * ", e2, sep='' )
     e1@formula.gradient = paste( "( ", e1@formula.gradient, " ) * ", e2, sep='' )
     return( e1 )
+})
+
+#'@export
+setMethod("^", c("FDiff","numeric"), function (e1, e2) {
+    e1@J = e2 * Matrix(diag((e1@F)^(e2-1)),sparse=T) %*% e1@J 
+    e1@F = (e1@F)^e2
+    return( e1 )
+})
+
+##
+#
+# Binary operators("numeric","FDiff")
+#
+##
+
+# By default, the operator is not defined.
+setMethod("Ops", c("numeric","FDiff"), function(e1,e2) {
+    stop('Operator on numeric and FDiff not yet implemented.')
 })
 
 #'@export
@@ -133,83 +169,104 @@ setMethod("*", c("numeric","FDiff"), function(e1,e2) {
     return( e2 )
 })
 
-#'@export
-setMethod("%*%", c("matrix","FDiff"), function(x,y) {
-    y@F = as.numeric(x %*% y@F)
-    y@J = Matrix(x,sparse=TRUE)%*%y@J
-    y@formula.levels   = paste( "Matrix (with name?)", " %*% ( ", y@formula.levels, " )", sep='' )
-    y@formula.gradient = paste( "Matrix (with name?)", " %*% ( ", y@formula.gradient, " )", sep='' )
-    return( y )
+##
+#
+# Binary operators("FDiff","FDiff")
+#
+##
+
+# By default, the operator is not defined.
+setMethod("Ops", c("FDiff","FDiff"), function(e1,e2) {
+    stop('Operator on FDiff and FDiff not yet implemented.')
 })
 
 #'@export
-setMethod("+", c("FDiff","FDiff"), 
-  function (e1, e2) {
+setMethod("+", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
     e1@F = e1@F + e2@F
     e1@J = e1@J + e2@J
-    e1
-  })
+    return( e1 )
+})
+
 #'@export
-setMethod("-", c("FDiff","FDiff"), 
-  function (e1, e2) {
+setMethod("-", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
     e1@F = e1@F - e2@F
     e1@J = e1@J - e2@J
-    e1
-  })
+    return( e1 )
+})
+
 #'@export
-setMethod("*", c("FDiff","FDiff"), 
-  function (e1, e2) {
+setMethod("*", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
     e1@J = Matrix(diag(e2@F),sparse=T) %*% e1@J + Matrix(diag(e1@F),sparse=T) %*% e2@J
     e1@F = e1@F * e2@F
-    e1
-  })
+    return( e1 )
+})
+
 #'@export
-setMethod("/", c("FDiff","FDiff"), 
-  function (e1, e2) {
+setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
     e1@J = Matrix(diag( (e2@F)^2 ),sparse=T) %*% ( - Matrix(diag(e2@F),sparse=T) %*% e1@J + Matrix(diag(e1@F),sparse=T) %*% e2@J) 
     e1@F = e1@F / e2@F
-    e1
-  })
-#'@export
-setMethod("^", c("FDiff","numeric"), 
-  function (e1, e2) {
-    e1@J = e2 * Matrix(diag((e1@F)^(e2-1)),sparse=T) %*% e1@J 
-    e1@F = (e1@F)^e2
-    e1
-  })
+    return( e1 )
+})
 
-# initializes a variable it's NxN, F is x and J is diag(1)
-#'@export
-setMethod("initialize", "FDiff", function(.Object,F,J,vars,name) { 
-  .Object@F <- F
-  .Object@J <- J
-  .Object@vars <- vars
-  .Object@formula.levels <- names(vars)
-  .Object@formula.gradient <- "1.0"
-  .Object@coloring=FALSE
-  .Object
-  })
+##
+#
+# Operators on matrix and FDiff.
+#
+##
 
-# initializes a variable it's NxN, F is x and J is diag(1)
 #'@export
-setMethod("print", "FDiff", function(x) { 
-  if (length(x@F)!=0){
-  	cat('FDiff object (', length(x@F) , 'x' , ncol(x@J), ') dense:', length(x@J@x)/prod(dim(x@J))  ,'% \n')
-  } else {
-	  cat("empty FDiff object\n")
-}
+setMethod("%*%", c("matrix","FDiff"), function(x,y) {
+    y@F = as.numeric(x %*% y@F)
+    y@J = Matrix(x,sparse=TRUE) %*% y@J
+    y@formula.levels   = paste( "Matrix (with name?)", " %*% ( ", y@formula.levels, " )", sep='' )
+    y@formula.gradient = paste( "Matrix (with name?)", " %*% ( ", y@formula.gradient, " )", sep='' )
+    return( y )
+})
+
+##
+#
+# Functions working separate elements of FDiff.
+#
+##
+
+#'@export
+# TODO: throw some error maybe if we have non-positive numbers?
+setMethod("log", "FDiff", function(x) {
+    # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
+    x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=TRUE) %*% x@J
+    x@F = log(x@F)
+    x@formula.gradient = paste( "1 / ( ", x@formula.levels, " ) %*% ( ", x@formula.gradient, " )", sep='' )
+    x@formula.levels   = paste( "log( ", x@formula.levels, " )", sep='' )
+    return( x ) 
+})
+
+##
+#
+# Functions working on all elements of FDiff at the same time.
+#
+##
+
+#'@export
+# TODO: is there a better way to find out the number of variables in a FDiff, rather
+# than using length( x@F )?
+setMethod("sum", "FDiff", function(x) {
+    x@J = Matrix( 1, nrow=1, ncol=length(x@F), sparse=TRUE ) %*% x@J
+    x@F = sum( x@F )
+    x@formula.levels   = paste( "sum( ", x@formula.levels, " )", sep='' )
+    x@formula.gradient = paste( "colSums or ones %*%( ", x@formula.gradient, " )", sep='' )
+    return( x )
 })
 
 # initializes a variable it's NxN, F is x and J is diag(1)
@@ -293,7 +350,7 @@ FDiff <- function(x, name) {
     vars = vars)
 }
 
-setMethod("Ops", c("FDiff","FDiff"), function(e1,e2) {})
+
 
 # Simple function representation
 # ==============================
