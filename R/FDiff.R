@@ -151,7 +151,7 @@ setMethod("-", c("numeric","FDiff"), function(e1,e2) {
         stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
     }
     e2@F = e1 - e2@F
-    e2@J = - e2@J
+    e2@J = -e2@J
     return( e2 )
 })
 
@@ -161,7 +161,11 @@ setMethod("/", c("numeric","FDiff"), function(e1,e2) {
         stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
     }
     e2@F = e1/e2@F
-    e2@J = -e1/(e2@J)^2
+    # Division of scalar by a sparse matrix (elementwise) by definition results in a 
+    # dense matrix, because all zero elements are now Inf. In order to comply with the
+    # definition of the Jacobian in FDiff, we explicitly convert the matrix to a sparse
+    # matrix.
+    e2@J = Matrix( -e1/((e2@J)^2), sparse=TRUE )
     return( e2 )
 })
 
