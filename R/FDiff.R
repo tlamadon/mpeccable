@@ -120,7 +120,7 @@ setMethod("^", c("FDiff","numeric"), function (e1, e2) {
     if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
         stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
     }
-    e1@J = e2 * Matrix(diag((e1@F)^(e2-1)),sparse=T) %*% e1@J 
+    e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
     e1@F = (e1@F)^e2
     return( e1 )
 })
@@ -211,7 +211,8 @@ setMethod("*", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
-    e1@J = Matrix(diag(e2@F),sparse=T) %*% e1@J + Matrix(diag(e1@F),sparse=T) %*% e2@J
+    e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
+           Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J
     e1@F = e1@F * e2@F
     return( e1 )
 })
@@ -221,7 +222,9 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
-    e1@J = Matrix(diag( (e2@F)^2 ),sparse=T) %*% ( - Matrix(diag(e2@F),sparse=T) %*% e1@J + Matrix(diag(e1@F),sparse=T) %*% e2@J) 
+    e1@J = Matrix(diag( (e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
+                - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
+                  Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J )
     e1@F = e1@F / e2@F
     return( e1 )
 })
@@ -235,7 +238,7 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
 #'@export
 setMethod("%*%", c("matrix","FDiff"), function(x,y) {
     y@F = as.numeric(x %*% y@F)
-    y@J = Matrix(x,sparse=TRUE) %*% y@J
+    y@J = Matrix(x, sparse=TRUE) %*% y@J
     return( y )
 })
 
@@ -249,7 +252,7 @@ setMethod("%*%", c("matrix","FDiff"), function(x,y) {
 # TODO: throw some error maybe if we have non-positive numbers?
 setMethod("log", "FDiff", function(x) {
     # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
-    x@J = Matrix(diag(1/(x@F), nrow=length(x@F), ncol=length(x@F)),sparse=TRUE) %*% x@J
+    x@J = Matrix(diag( 1/(x@F), nrow=length(x@F), ncol=length(x@F) ), sparse=TRUE) %*% x@J
     x@F = log(x@F)
     return( x ) 
 })
@@ -346,6 +349,6 @@ FDiff <- function(x, name) {
   vars[name] = N
   new("FDiff",
     F    = x,
-    J    = Matrix(diag(rep(1,N)), sparse = TRUE),
+    J    = Matrix(diag(rep(1,N), nrow=N, ncol=N), sparse=TRUE),
     vars = vars)
 }
