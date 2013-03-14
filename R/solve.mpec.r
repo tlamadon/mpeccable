@@ -22,14 +22,14 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   # I create the error and append it
   optim.err = FDiff(rep(0,dim(C.MSE)[1]),'optim.err') 
   C.MSE = C.MSE + optim.err
-  constraint_lb = 0
-  constraint_ub = 0
 
   # append optim.err to list of vars
   vars[['optim.err']] = dim(optim.err)[1]
 
   # exctract the sparse structure of the jacobian
   eval_jac_g_structure <- make.sparse( C.MSE@J!=0) # needs to 
+  constraint_lb = rep(0,length(eval_jac_g_structure))
+  constraint_ub = rep(0,length(eval_jac_g_structure))
 
   # Create the objective function and the constraint function for ipopt
   # -------------------------------------------------------------------
@@ -78,6 +78,9 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   length(eval_jac_g(x0.augmented,private))
   length(unlist(eval_jac_g_structure))
 
+  length(eval_grad_f(x0.augmented,private))
+
+
   # Call the optimizer
   # ------------------
   res = ipoptr( 
@@ -89,6 +92,8 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
      eval_g=eval_g, 
      eval_jac_g=eval_jac_g,
      eval_jac_g_structure=eval_jac_g_structure,
+     constraint_lb=constraint_lb,
+     constraint_ub=constraint_ub,
      private=private)
 
   return(res)

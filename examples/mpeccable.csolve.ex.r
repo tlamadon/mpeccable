@@ -45,4 +45,8 @@ cFunc <- function(params) {
   return(list(C.MSE=R))
 }
 
+# just a test
+ps = mpec.vars.collate(x0,vars)
+cFunc(ps)
+
 res = mpeccable.csolve( cFunc, x0, vars )
