@@ -26,6 +26,11 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   # I create the error and append it
   optim.err = FDiff(rep(0,dim(C.MSE)[1]),'optim.err') 
   C.MSE = C.MSE + optim.err
+  constraint_lb = 0
+  constraint_ub = 0
+
+  # append optim.err to list of vars
+  vars[['optim.err']] = dim(optim.err)[1]
 
   # exctract the sparse structure of the jacobian
   eval_jac_g_structure <- make.sparse( C.MSE@J!=0) # needs to 
@@ -36,18 +41,18 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   #  ------  objective function ------
   eval_f <- function(x) { 
     # extract the squared errors and sum them  
-    ps  = mpec.vars.collate(x0,vars)
+    ps  = mpec.vars.collate(x,vars)
     return(sum( (ps[['optim.err']]@F)^2))
   }
   #  ------  objective function gradient ------
   eval_grad_f <- function(x) { 
     # extract the errors and return them
-    ps  = mpec.vars.collate(x0,vars)
+    ps  = mpec.vars.collate(x,vars)
     return(2*ps[['optim.err']]@F)
   }
   #  ------  constraint function gradient ------
   eval_g <- function( x ) {    
-    ps        = mpec.vars.collate(x0,vars)    # extract the parameters
+    ps        = mpec.vars.collate(x,vars)    # extract the parameters
     optim.err = ps[['optim.err']]             # extract the errors
     res       = cFunc(ps)                     # evaluate the constraints
     C.MSE     = res[['C.MSE']] + optim.err    # add the errors
@@ -55,7 +60,7 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   }
   #  ------  constraint function gradient ------
   eval_jac_g <- function( x ) {    
-    ps        = mpec.vars.collate(x0,vars)    # extract the parameters
+    ps        = mpec.vars.collate(x,vars)    # extract the parameters
     optim.err = ps[['optim.err']]             # extract the errors
     res       = cFunc(ps)                     # evaluate the constraints
     C.MSE     = res[['C.MSE']] + optim.err    # add the errors
@@ -64,20 +69,20 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
     return(t(C.MSE@J)@x)
   }
 
+  x0.augmented = c(x0,optim.err@F)
+
   # Call the optimizer
   # ------------------
   res = ipoptr( 
      x0=x0, 
      eval_f=eval_f, 
      eval_grad_f=eval_grad_f, 
-     lb=lb, 
-     ub=ub, 
      eval_g=eval_g, 
      eval_jac_g=eval_jac_g,
      eval_jac_g_structure=eval_jac_g_structure,
      constraint_lb=constraint_lb,
      constraint_ub=constraint_ub,
-     opts=opts)
+     ipoptr_environment = environment())
 
   return(res)
 }

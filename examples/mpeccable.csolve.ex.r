@@ -2,6 +2,7 @@
 # ------------------------------
 require(mpeccable)
 require(ggplot2)
+require(ipoptr)
 
 # trying a simple fitting of a spline
 # then we will try with constraint
