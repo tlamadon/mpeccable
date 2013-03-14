@@ -9,8 +9,8 @@ require(Matrix)
 #' @family frep
 #' @example examples/F_SplineInt1D_example.r
 F_SplineInt1D <- function(xsupp,ivals) {
-  xknots = splineKnots(xsupp)$knots
-  Nx     = splineKnots(xsupp)$N
+  xknots = splineKnotsMpec(xsupp)$knots
+  Nx     = splineKnotsMpec(xsupp)$N
 
  ff <- function(ain,zin,gin,deriv=0) {
 

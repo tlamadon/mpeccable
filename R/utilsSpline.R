@@ -22,7 +22,7 @@ knot.select <- function(degree,grid){
 
 
 #' get spline representation
-splineKnots <- function(support) {
+splineKnotsMpec <- function(support) {
   fit   = smooth.spline(support,support)
   knots = fit$fit$knot * fit$fit$range + fit$fit$min
   return(list(knots = knots, N = fit$fit$nk))
