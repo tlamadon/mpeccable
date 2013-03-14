@@ -1,5 +1,7 @@
-# The user writes the following:
-# ------------------------------
+# This is very simple example that fits 3 splines
+# on a very small grid. It is supposed to test
+# the piping
+
 require(mpeccable)
 require(ggplot2)
 require(ipoptr)
@@ -43,8 +45,4 @@ cFunc <- function(params) {
   return(list(C.MSE=R))
 }
 
-# small test
-ps  = mpec.vars.collate(x0,vars,coloring=TRUE)
-res = cFunc(ps)
-
-res = mpeccable.solve( cFunc, x0, vars )
+res = mpeccable.csolve( cFunc, x0, vars )

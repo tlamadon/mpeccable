@@ -65,4 +65,18 @@ applyColoring <- function(F) {
   return(F)
 }
 
+#' variables for the Jacobian columns
+#' @export
+getSparseValues <- function(M,S) 
+{
+  r = rep(0,length(unlist(S)))
+  i = 1
+  for (row in 1:length(S)) {
+    for (col in S[[row]]) {
+      r[i] = M[row,col];
+    }
+  }
+
+  return(r)
+}
 

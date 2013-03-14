@@ -29,3 +29,4 @@ Collate:
     'utilsSpline.R'
     'SolveDiff.R'
     'optim.variables.r'
+    'solve.mpec.r'
