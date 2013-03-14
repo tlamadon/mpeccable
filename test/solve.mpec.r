@@ -1,7 +1,23 @@
 
 
 # from user point of view
+#' solves a set of constraints (equality and inequality)
+#' the argument is a function cFunc that takes a parameter and returns the 
+#' evaluated list of constraints, the sparse Jacobian and the constraints type
+#' the second argument is an intial parameter value
+#' cFunc should return the coloring if called with coloring=TRUE
+#' @export
+#' @example examples/mpeccable.csolve.r
+mpeccable.csolve <- function( cFunc,initp ) {
 
+  # step 1
+
+
+
+
+
+
+}
 
 
 

@@ -2,7 +2,7 @@
 \alias{FDiff}
 \title{creates a variable to be tracked by the computation of the Jacobian}
 \usage{
-  FDiff(x, name)
+  FDiff(x, name, coloring = FALSE)
 }
 \arguments{
   \item{x}{a vector of current values}

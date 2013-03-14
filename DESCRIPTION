@@ -28,3 +28,4 @@ Collate:
     'FRep.R'
     'utilsSpline.R'
     'SolveDiff.R'
+    'optim.variables.r'

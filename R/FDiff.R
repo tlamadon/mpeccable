@@ -347,12 +347,13 @@ setMethod(
 #' @param x a vector of current values
 #' @param name a anme that uniquly identify this variable in the overall
 #' @export
-FDiff <- function(x, name) {
+FDiff <- function(x, name, coloring=FALSE) {
   N = length(x)
   vars = list()
   vars[name] = N
   new("FDiff",
     F    = x,
     J    = Matrix(diag(rep(1,N), nrow=N, ncol=N), sparse=TRUE),
-    vars = vars)
+    vars = vars,
+    coloring=coloring)
 }
