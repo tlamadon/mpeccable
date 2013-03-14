@@ -13,6 +13,9 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   # Compute Jacobian Structure
   # --------------------------
 
+  # @todo bounds on parameters
+  # @todo deal with inequality constraints
+
   # get the Jacobian from constraints
   theta = mpec.vars.collate(x0,vars,coloring=TRUE)
   res = cFunc(ps)
@@ -25,8 +28,7 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   C.MSE = C.MSE + optim.err
 
   # exctract the sparse structure of the jacobian
-  
-
+  eval_jac_g_structure <- make.sparse( C.MSE@J!=0) # needs to 
 
   # Create the objective function and the constraint function for ipopt
   # -------------------------------------------------------------------
@@ -62,14 +64,22 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
     return(t(C.MSE@J)@x)
   }
 
+  # Call the optimizer
+  # ------------------
+  res = ipoptr( 
+     x0=x0, 
+     eval_f=eval_f, 
+     eval_grad_f=eval_grad_f, 
+     lb=lb, 
+     ub=ub, 
+     eval_g=eval_g, 
+     eval_jac_g=eval_jac_g,
+     eval_jac_g_structure=eval_jac_g_structure,
+     constraint_lb=constraint_lb,
+     constraint_ub=constraint_ub,
+     opts=opts)
 
-
-
-
-
-
-
-
+  return(res)
 }
 
 
@@ -154,68 +164,6 @@ setMethod(f="solve",signature="SolveMpec",
 		  )
 
 
-
-
-# objective
-objective <- function(x) {
-	# find a way to extract errors from x. 
-	# right now there is a data.table with a key "variable":
-	return( sum(  x[ h[c("err.1","err.2")][,idx] ]^2   ))
-}
-
-# gradient of objective
-grad <- function(x) {
-	return( 2 * x[ h[c("err.1","err.2")][,idx] ] )
-}
-
-# ipopt wrapper
-ipopt.const <- function(x) {
-
-  errors = ggetFromX
-
-  # remove errors and call the user function
-  R = constfun(x)
-
-  # add errors to it
-  rval <- R@F - errors
-
-  # append to Jacobian
-
-  return(   )
-}
-
-
-
-
-
-# you see that the exact same computations are required to get constraint and Jacobian
-# i.e. you need to to V(...) twice
-# there is an easy way to return both constr and jac in one function, we should definitely do that.
-jacfun <- function(x,FDiffobj){
-
-	newg <- x[ "gamma" ]
-	newa <- x[ "endog" ]
-  g. = FDiff(newg,'g')
-  a_ = FDiff(newa,'a')
-
-  V = SplineInt1D(xsupp,ivals)	# this can be stored on disk/memory
-
-  R = V(cc$a,cc$z,g.)	# cc is the grid. stored outside.
-  R = V(a_,  cc$z,g.)
-
-  rval <- t(R@J)@x
-  return( rval )
-}
-
-
-
-# test for turning around dgCMatrix into dgRMatrix
-  A <- matrix(c(0,0,1,2,0,3,4,5,0,6,7,0,8,9,0,10),4,4,byrow=T)
-  Ac = as(A,"dgCMatrix")
-  Ar = as(A,"dgRMatrix")
-  tAc = t(Ac)
-  Ar@x
-  tAc@x
 
 
 
