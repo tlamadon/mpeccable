@@ -38,14 +38,13 @@ cFunc <- function(params) {
   # we want to minimize the distance between the spline and the values
   R = cc$values - V(cc$a,cc$z,g.)
 
-  # specify contraint type -- here all mean square for now
-  C = rep('MSE',length(R@F))
-
-  return(list(R=R,C=C))
+  # return the list of constraints, sepecifying each type
+  # for now it's only MSE constraints
+  return(list(C.MSE=R))
 }
 
 # small test
-ps = mpec.vars.collate(x0,vars,coloring=TRUE)
-cFunc(ps)
+ps  = mpec.vars.collate(x0,vars,coloring=TRUE)
+res = cFunc(ps)
 
 res = mpeccable.solve( cFunc, x0, vars )

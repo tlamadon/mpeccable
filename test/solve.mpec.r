@@ -18,9 +18,26 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   res = cFunc(ps)
 
   # create the error for each equality constraint, not for inequality
-  I = res$C == 'MSE'
+  C.MSE = res[['C.MSE']]
 
-  
+  # I create the error and append it
+  optim.err = FDiff(rep(0,dim(C.MSE)[1]),'optim.err') 
+  C.MSE = C.MSE + optim.err
+
+
+  # Create the objective function and the constraint function for ipopt
+  # -------------------------------------------------------------------
+
+  eval_f <- function(x) { 
+    # extract the squared errors and sum them  
+    ps  = mpec.vars.collate(x0,vars)
+    return(sum( (ps[['optim.err']]@F)^2))
+  }
+  eval_grad_f <- function(x) { 
+    # extract the errors and return them
+    ps  = mpec.vars.collate(x0,vars)
+    return(ps[['optim.err']]@F)
+  }
 
 
 
