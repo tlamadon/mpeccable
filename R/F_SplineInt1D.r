@@ -25,7 +25,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
       J = ((i-1)*Nx+1) : ((i-1)*Nx+Nx)
 
       # check for coloring
-      if (is.fdiff(ain) & getOption('mpeccable.coloring')) {
+      if (is.fdiff(ain) & gin@coloring) {
         D = array(1,c(length(I),length(J)))
       } else {
         D = splineDesign(xknots,ain[I],outer.ok = TRUE,derivs = rep(deriv,length(ain[I])))        
@@ -36,7 +36,9 @@ F_SplineInt1D <- function(xsupp,ivals) {
     vars = list(v1 = length(ivals) * (length(xknots)-4))
     names(vars) <- names(gin@vars[[1]])
 
-    R = new("FDiff",F=c(F),J=Matrix(M,sparse=T),vars=gin@vars)
+    if (gin@coloring) M = (M!=0)*1;
+
+    R = new("FDiff",F=c(F),J=Matrix(M,sparse=T),vars=gin@vars,coloring=gin@coloring)
 
   } else {
     stop('function representation is not a parameter, this seems odd')
@@ -50,7 +52,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
       I  = which(zin==i)
       J  = 1:Nx # we need all functional parameters
       D = splineDesign(xknots,ain[I],deriv=rep(1+deriv,length(ain[I])),outer.ok = TRUE)
-      if (getOption('mpeccable.coloring')) {
+      if (ain@coloring) {
         M[I,I] = diag(length(I))  
       } else {
         M[I,I] = diag(c(D %*% gin[J]))   

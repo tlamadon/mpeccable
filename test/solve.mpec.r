@@ -8,9 +8,21 @@
 #' cFunc should return the coloring if called with coloring=TRUE
 #' @export
 #' @example examples/mpeccable.csolve.r
-mpeccable.csolve <- function( cFunc,initp ) {
+mpeccable.csolve <- function( cFunc, x0, vars ) {
 
-  # step 1
+  # Compute Jacobian Structure
+  # --------------------------
+
+  # get the Jacobian from constraints
+  theta = mpec.vars.collate(x0,vars,coloring=TRUE)
+  res = cFunc(ps)
+
+  # create the error for each equality constraint, not for inequality
+  I = res$C == 'MSE'
+
+  
+
+
 
 
 

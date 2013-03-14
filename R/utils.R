@@ -56,3 +56,13 @@ Var <- function(name,size) {
 }
 
 is.fdiff <- function(x) (class(x)=='FDiff')
+
+# this is a bit dirty, sorry....
+applyColoring <- function(F) {
+  if (F@coloring) {
+    F@J = (F@J!=0)*1;
+  }
+  return(F)
+}
+
+

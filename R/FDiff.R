@@ -26,11 +26,11 @@ setClass("FDiff",
 # Constructor.
 # initializes a variable it's NxN, F is x and J is diag(1)
 #'@export
-setMethod("initialize", "FDiff", function(.Object,F,J,vars,name) { 
+setMethod("initialize", "FDiff", function(.Object,F,J,vars,name,coloring=FALSE) { 
     .Object@F <- F
     .Object@J <- J
     .Object@vars <- vars
-    .Object@coloring=FALSE
+    .Object@coloring=coloring
     .Object
 })
 
@@ -83,7 +83,7 @@ setMethod("+", c("FDiff","numeric"), function(e1,e2) {
         stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
     }
     e1@F = e1@F+e2
-    return( e1 ) 
+    return( applyColoring(e1) ) 
 })
 
 #'@export
@@ -102,7 +102,7 @@ setMethod("/", c("FDiff","numeric"), function(e1,e2) {
     }
     e1@F = e1@F/e2
     e1@J = e1@J/e2
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 #'@export
@@ -112,7 +112,7 @@ setMethod("*", c("FDiff","numeric"), function(e1,e2) {
     }
     e1@F = e1@F*e2
     e1@J = e1@J*e2
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 #'@export
@@ -122,7 +122,7 @@ setMethod("^", c("FDiff","numeric"), function (e1, e2) {
     }
     e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
     e1@F = (e1@F)^e2
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 ##
@@ -142,7 +142,7 @@ setMethod("+", c("numeric","FDiff"), function(e1,e2) {
         stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
     }
     e2@F = e2@F+e1
-    return( e2 )
+    return( applyColoring(e2) )
 })
 
 #'@export
@@ -152,7 +152,7 @@ setMethod("-", c("numeric","FDiff"), function(e1,e2) {
     }
     e2@F = e1 - e2@F
     e2@J = -e2@J
-    return( e2 )
+    return( applyColoring(e2) )
 })
 
 #'@export
@@ -166,7 +166,7 @@ setMethod("/", c("numeric","FDiff"), function(e1,e2) {
     # definition of the Jacobian in FDiff, we explicitly convert the matrix to a sparse
     # matrix.
     e2@J = Matrix( -e1/((e2@J)^2), sparse=TRUE )
-    return( e2 )
+    return( applyColoring(e2) )
 })
 
 #'@export
@@ -176,7 +176,7 @@ setMethod("*", c("numeric","FDiff"), function(e1,e2) {
     }
     e2@F = e2@F*e1
     e2@J = e2@J*e1
-    return( e2 )
+    return( applyColoring(e2) )
 })
 
 ##
@@ -197,7 +197,7 @@ setMethod("+", c("FDiff","FDiff"), function (e1, e2) {
     e2   = expandJacDomain(e2,vars)
     e1@F = e1@F + e2@F
     e1@J = e1@J + e2@J
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 #'@export
@@ -207,7 +207,7 @@ setMethod("-", c("FDiff","FDiff"), function (e1, e2) {
     e2   = expandJacDomain(e2,vars)
     e1@F = e1@F - e2@F
     e1@J = e1@J - e2@J
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 #'@export
@@ -218,7 +218,7 @@ setMethod("*", c("FDiff","FDiff"), function (e1, e2) {
     e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
            Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J
     e1@F = e1@F * e2@F
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 #'@export
@@ -230,7 +230,7 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
                 - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
                   Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J )
     e1@F = e1@F / e2@F
-    return( e1 )
+    return( applyColoring(e1) )
 })
 
 ##
@@ -243,7 +243,7 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
 setMethod("%*%", c("matrix","FDiff"), function(x,y) {
     y@F = as.numeric(x %*% y@F)
     y@J = Matrix(x, sparse=TRUE) %*% y@J
-    return( y )
+    return( applyColoring(y) )
 })
 
 ##
@@ -258,7 +258,7 @@ setMethod("log", "FDiff", function(x) {
     # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
     x@J = Matrix(diag( 1/(x@F), nrow=length(x@F), ncol=length(x@F) ), sparse=TRUE) %*% x@J
     x@F = log(x@F)
-    return( x ) 
+    return( applyColoring(x) ) 
 })
 
 ##
@@ -343,6 +343,17 @@ setMethod(
   }
 )
 
+#' allows accessing the levels directly, this is convenient
+#' within the code
+#' @name extract 
+setMethod(
+  f= "dim",
+  signature="FDiff",
+  definition=function(x){
+    return(dim(x@J))
+  }
+)
+
 #' creates a variable to be tracked by the computation of the Jacobian
 #' @param x a vector of current values
 #' @param name a anme that uniquly identify this variable in the overall
@@ -357,3 +368,6 @@ FDiff <- function(x, name, coloring=FALSE) {
     vars = vars,
     coloring=coloring)
 }
+
+
+
