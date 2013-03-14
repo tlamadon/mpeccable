@@ -93,6 +93,9 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
      constraint_lb=constraint_lb,
      constraint_ub=constraint_ub,
      private=private)
+  
+  theta.opt = mpec.vars.collate(res$solution,private$vars)
+  res$solution = theta.opt
 
   return(res)
 }

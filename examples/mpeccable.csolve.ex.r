@@ -18,7 +18,7 @@ ivals  = 1:3
 cc = expand.grid(a=seq(0,1,l=3*Nx),z=ivals)
 
 # get a function to fit
-cc$values = with(cc, a^z ) + rnorm(nrow(cc),sd=0.1)
+cc$values = with(cc, a^z ) + rnorm(nrow(cc),sd=0.01)
 ggplot(cc,aes(x=a,y=values,color=factor(z))) + geom_point()
 
 # create a functional and gets the function representation
@@ -45,8 +45,16 @@ cFunc <- function(params) {
   return(list(C.MSE=R))
 }
 
-# just a test
-ps = mpec.vars.collate(x0,vars)
-cFunc(ps)
-
+# call the optimizer
 res = mpeccable.csolve( cFunc, x0, vars )
+
+# extract results
+g. = res$solution[['g.']]
+cc$values_fit = V(cc$a,cc$z,g.)@F
+
+ggplot(cc,aes(x=a,y=values,color=factor(z))) + 
+  geom_point() + geom_line(aes(y=values_fit,linetype='fitted'))
+
+
+
+
