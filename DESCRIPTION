@@ -21,7 +21,6 @@ Collate:
     'frepSpline1D.R'
     'frepSpline2D.R'
     'frepSpline3D.R'
-    'cake.r'
     'F_SplineInt1D.r'
     'mpeccable-package.r'
     'FDiff.R'
@@ -30,3 +29,4 @@ Collate:
     'SolveDiff.R'
     'optim.variables.r'
     'solve.mpec.r'
+    'F_Linear.r'
