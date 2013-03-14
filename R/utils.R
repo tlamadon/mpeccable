@@ -74,6 +74,7 @@ getSparseValues <- function(M,S)
   for (row in 1:length(S)) {
     for (col in S[[row]]) {
       r[i] = M[row,col];
+      i=i+1
     }
   }
 

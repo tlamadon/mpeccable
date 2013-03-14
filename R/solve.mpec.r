@@ -46,7 +46,7 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
     ps     = mpec.vars.collate(x,private$vars)
     ranges = computeVarRanges(private$vars)
     r      = mpec.vars.init(private$vars,0)
-    r[ranges[['optim.rr']]] = ps[['optim.err']]@F
+    r[ranges[['optim.rr']]] = 2*ps[['optim.err']]@F
     return(r)
   }
   #  ------  constraint function gradient ------
@@ -75,11 +75,9 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   
   private = list(vars=vars,eval_jac_g_structure=eval_jac_g_structure,cFunc=cFunc)
 
-  length(eval_jac_g(x0.augmented,private))
-  length(unlist(eval_jac_g_structure))
-
-  length(eval_grad_f(x0.augmented,private))
-
+  #length(eval_jac_g(x0.augmented,private))
+  #length(unlist(eval_jac_g_structure))
+  #length(eval_grad_f(x0.augmented,private))
 
   # Call the optimizer
   # ------------------

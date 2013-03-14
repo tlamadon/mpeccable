@@ -14,12 +14,12 @@ Nx = 10
 xsupp  = seq(0,1,l=Nx)
 ivals  = 1:3
 
-# define a simple collocation
-cc = expand.grid(a=xsupp,z=ivals)
+# define a simple collocation with more points
+cc = expand.grid(a=seq(0,1,l=3*Nx),z=ivals)
 
 # get a function to fit
-cc$values = with(cc, a^z )
-ggplot(cc,aes(x=a,y=values,color=factor(z))) + geom_line()
+cc$values = with(cc, a^z ) + rnorm(nrow(cc),sd=0.1)
+ggplot(cc,aes(x=a,y=values,color=factor(z))) + geom_point()
 
 # create a functional and gets the function representation
 V  = F_SplineInt1D(xsupp,ivals)
