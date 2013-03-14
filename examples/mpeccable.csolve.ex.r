@@ -11,11 +11,11 @@ require(ipoptr)
 # define the collocation 
 # ----------------------
 Nx = 15
-xsupp  = seq(-0.2,1.2,l=Nx)
+xsupp  = seq(0,1,l=Nx)
 ivals  = 1:3
 
 # define a simple collocation with more points
-cc = expand.grid(a=seq(0,1,l=3*Nx),z=ivals)
+cc = expand.grid(a=seq(0,1,l=Nx),z=ivals)
 
 # get a function to fit
 cc$values = with(cc, a^z ) + rnorm(nrow(cc),sd=0.01)
@@ -44,16 +44,32 @@ cFunc <- function(params) {
   return(list(C.MSE=R))
 }
 
+opts <- list("print_level"=0,
+             "file_print_level"=12,
+             "output_file"="banana.out",
+             "tol"=1.0e-8)
+
 # call the optimizer
-res = mpeccable.csolve( cFunc, x0, vars )
+res = mpeccable.csolve( cFunc, x0, vars , opts)
 
 # extract results
-g. = res$solution[['g.']]
-cc$values_fit = V(cc$a,cc$z,g.)@F
+g.  = res$solution[['g.']]
+cc$values_mpec = V(cc$a,cc$z,g.)@F
+
+
+# fitting the spline in a different way
+rbest = c()
+for (i in 1:3) {
+  fit <- smooth.spline(cc$a[cc$z==i],cc$values[cc$z==i])
+  rbest = c(rbest,fit$fit$coef)
+}
+g.@F = rbest
+cc$values_spline = V(cc$a,cc$z,g.)@F
 
 ggplot(cc,aes(x=a,y=values,color=factor(z))) + 
-  geom_point() + geom_line(aes(y=values_fit,linetype='fitted'))
-
+  geom_point() + geom_line(aes(y=values_mpec,linetype='mpec')) +
+  geom_line(aes(y=values_spline,linetype='spline')) +
+  theme_bw()
 
 
 

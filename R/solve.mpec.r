@@ -5,7 +5,7 @@
 #' cFunc should return the coloring if called with coloring=TRUE
 #' @export
 #' @example examples/mpeccable.csolve.ex.r
-mpeccable.csolve <- function( cFunc, x0, vars ) {
+mpeccable.csolve <- function( cFunc, x0, vars ,opts ) {
 
   # Compute Jacobian Structure
   # --------------------------
@@ -92,8 +92,9 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
      eval_jac_g_structure=eval_jac_g_structure,
      constraint_lb=constraint_lb,
      constraint_ub=constraint_ub,
+     opts=opts,
      private=private)
-  
+
   theta.opt = mpec.vars.collate(res$solution,private$vars)
   res$solution = theta.opt
 
