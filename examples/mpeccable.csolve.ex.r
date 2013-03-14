@@ -22,7 +22,6 @@ ggplot(cc,aes(x=a,y=values,color=factor(z))) + geom_line()
 V  = F_SplineInt1D(xsupp,ivals)
 g. = param0(V,'g.',0.1)
 
-
 # storing the list of variables 
 vars <- mpec.vars.desc(list(g.))
 

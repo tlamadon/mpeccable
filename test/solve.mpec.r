@@ -24,20 +24,44 @@ mpeccable.csolve <- function( cFunc, x0, vars ) {
   optim.err = FDiff(rep(0,dim(C.MSE)[1]),'optim.err') 
   C.MSE = C.MSE + optim.err
 
+  # exctract the sparse structure of the jacobian
+  
+
 
   # Create the objective function and the constraint function for ipopt
   # -------------------------------------------------------------------
 
+  #  ------  objective function ------
   eval_f <- function(x) { 
     # extract the squared errors and sum them  
     ps  = mpec.vars.collate(x0,vars)
     return(sum( (ps[['optim.err']]@F)^2))
   }
+  #  ------  objective function gradient ------
   eval_grad_f <- function(x) { 
     # extract the errors and return them
     ps  = mpec.vars.collate(x0,vars)
-    return(ps[['optim.err']]@F)
+    return(2*ps[['optim.err']]@F)
   }
+  #  ------  constraint function gradient ------
+  eval_g <- function( x ) {    
+    ps        = mpec.vars.collate(x0,vars)    # extract the parameters
+    optim.err = ps[['optim.err']]             # extract the errors
+    res       = cFunc(ps)                     # evaluate the constraints
+    C.MSE     = res[['C.MSE']] + optim.err    # add the errors
+    return(C.MSE@F)
+  }
+  #  ------  constraint function gradient ------
+  eval_jac_g <- function( x ) {    
+    ps        = mpec.vars.collate(x0,vars)    # extract the parameters
+    optim.err = ps[['optim.err']]             # extract the errors
+    res       = cFunc(ps)                     # evaluate the constraints
+    C.MSE     = res[['C.MSE']] + optim.err    # add the errors
+
+    # extract sparse structure of the JAC
+    return(t(C.MSE@J)@x)
+  }
+
 
 
 
