@@ -43,7 +43,6 @@ cFunc <- function(params) {
 
 opts <- list("print_level"=0,
              "file_print_level"=12,
-             "output_file"="banana.out",
              "tol"=1.0e-8)
 
 # call the optimizer
