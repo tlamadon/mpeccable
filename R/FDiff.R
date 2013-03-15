@@ -79,49 +79,97 @@ setMethod("Ops", c("FDiff","numeric"), function(e1,e2) {
 
 #'@export
 setMethod("+", c("FDiff","numeric"), function(e1,e2) {
-    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
-        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    if ( length(e1@F) == length(e2) ) {
+        e1@F = e1@F + e2
+    } else if ( length(e1@F) == 1 & length(e2) > 1 ) {
+        # Duplicate single row e1@J to get length(e2) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), length(e2) ), ncol=ncol(e1@J), nrow=length(e2), byrow=TRUE, sparse=TRUE )
+        e1@F = e1@F + e2
+        e1@J = Jac1
+    } else if ( length(e1@F) > 1 & length(e2) == 1 ) {
+        e1@F = e1@F + e2
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
     }
-    e1@F = e1@F+e2
+
     return( applyColoring(e1) ) 
 })
 
 #'@export
 setMethod("-", c("FDiff","numeric"), function(e1,e2) {
-    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
-        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    if ( length(e1@F) == length(e2) ) {
+        e1@F = e1@F - e2
+    } else if ( length(e1@F) == 1 & length(e2) > 1 ) {
+        # Duplicate single row e1@J to get length(e2) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), length(e2) ), ncol=ncol(e1@J), nrow=length(e2), byrow=TRUE, sparse=TRUE )
+        e1@F = e1@F - e2
+        e1@J = Jac1
+    } else if ( length(e1@F) > 1 & length(e2) == 1 ) {
+        e1@F = e1@F - e2
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
     }
-    e1@F = e1@F-e2
-    return( e1 )
+
+    return( applyColoring(e1) )
 })
 
 #'@export
 setMethod("/", c("FDiff","numeric"), function(e1,e2) {
-    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
-        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    if ( length(e1@F) == length(e2) ) {
+        e1@F = e1@F / e2
+        e1@J = e1@J / e2
+    } else if ( length(e1@F) == 1 & length(e2) > 1 ) {
+        # Duplicate single row e1@J to get length(e2) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), length(e2) ), ncol=ncol(e1@J), nrow=length(e2), byrow=TRUE, sparse=TRUE )
+        e1@F = e1@F / e2
+        e1@J = Jac1 / e2
+    } else if ( length(e1@F) > 1 & length(e2) == 1 ) {
+        e1@F = e1@F / e2
+        e1@J = e1@J / e2
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
     }
-    e1@F = e1@F/e2
-    e1@J = e1@J/e2
+
     return( applyColoring(e1) )
 })
 
 #'@export
 setMethod("*", c("FDiff","numeric"), function(e1,e2) {
-    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
-        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    if ( length(e1@F) == length(e2) ) {
+        e1@F = e1@F * e2
+        e1@J = e1@J * e2
+    } else if ( length(e1@F) == 1 & length(e2) > 1 ) {
+        # Duplicate single row e1@J to get length(e2) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), length(e2) ), ncol=ncol(e1@J), nrow=length(e2), byrow=TRUE, sparse=TRUE )
+        e1@F = e1@F * e2
+        e1@J = Jac1 * e2
+    } else if ( length(e1@F) > 1 & length(e2) == 1 ) {
+        e1@F = e1@F * e2
+        e1@J = e1@J * e2
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
     }
-    e1@F = e1@F*e2
-    e1@J = e1@J*e2
+
     return( applyColoring(e1) )
 })
 
 #'@export
 setMethod("^", c("FDiff","numeric"), function (e1, e2) {
-    if ( length(e2) != 1 & length(e2) != length(e1@F) ) {
-        stop(paste( deparse(substitute(e2)), ' should be a scalar or have the same length as ', deparse(substitute(e1)), '@F.', sep='' ))
+    if ( length(e1@F) == length(e2) ) {
+        e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
+        e1@F = (e1@F)^e2
+    } else if ( length(e1@F) == 1 & length(e2) > 1 ) {
+        # Duplicate single row e1@J to get length(e2) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), length(e2) ), ncol=ncol(e1@J), nrow=length(e2), byrow=TRUE, sparse=TRUE )
+        e1@J = e2 * (e1@F)^(e2-1) * Jac1
+        e1@F = (e1@F)^e2
+    } else if ( length(e1@F) > 1 & length(e2) == 1 ) {
+        e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
+        e1@F = (e1@F)^e2
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
     }
-    e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
-    e1@F = (e1@F)^e2
+    
     return( applyColoring(e1) )
 })
 
@@ -138,8 +186,9 @@ setMethod("Ops", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("+", c("numeric","FDiff"), function(e1,e2) {
-    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
-        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    if ( !( length(e1) == 1 | length(e2@F) == 1 | length(e1) == length(e2@F) ) ) {
+        stop(paste( deparse(substitute(e1)), ' or ', deparse(substitute(e2)), 
+             ' should be a scalar or have the same length.', sep='' ))
     }
     e2@F = e2@F+e1
     return( applyColoring(e2) )
@@ -147,8 +196,9 @@ setMethod("+", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("-", c("numeric","FDiff"), function(e1,e2) {
-    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
-        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    if ( !( length(e1) == 1 | length(e2@F) == 1 | length(e1) == length(e2@F) ) ) {
+        stop(paste( deparse(substitute(e1)), ' or ', deparse(substitute(e2)), 
+             ' should be a scalar or have the same length.', sep='' ))
     }
     e2@F = e1 - e2@F
     e2@J = -e2@J
@@ -157,8 +207,9 @@ setMethod("-", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("/", c("numeric","FDiff"), function(e1,e2) {
-    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
-        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    if ( !( length(e1) == 1 | length(e2@F) == 1 | length(e1) == length(e2@F) ) ) {
+        stop(paste( deparse(substitute(e1)), ' or ', deparse(substitute(e2)), 
+             ' should be a scalar or have the same length.', sep='' ))
     }
     e2@F = e1/e2@F
     # Division of scalar by a sparse matrix (elementwise) by definition results in a 
@@ -171,8 +222,9 @@ setMethod("/", c("numeric","FDiff"), function(e1,e2) {
 
 #'@export
 setMethod("*", c("numeric","FDiff"), function(e1,e2) {
-    if ( length(e1) != 1 & length(e1) != length(e2@F) ) {
-        stop(paste( deparse(substitute(e1)), ' should be a scalar or have the same length as ', deparse(substitute(e2)), '@F.', sep='' ))
+    if ( !( length(e1) == 1 | length(e2@F) == 1 | length(e1) == length(e2@F) ) ) {
+        stop(paste( deparse(substitute(e1)), ' or ', deparse(substitute(e2)), 
+             ' should be a scalar or have the same length.', sep='' ))
     }
     e2@F = e2@F*e1
     e2@J = e2@J*e1
@@ -195,8 +247,20 @@ setMethod("+", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
+    if ( length(e1@F) == 1 ) {
+        # Duplicate single row e1@J to get nrow(e2@F) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
+    } else {
+        Jac1 = e1@J
+    }
+    if ( length(e2@F) == 1 ) {
+        # Duplicate single row e2@J to get length(e1@F) rows.
+        Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
+    } else {
+        Jac2 = e2@J
+    }
     e1@F = e1@F + e2@F
-    e1@J = e1@J + e2@J
+    e1@J = Jac1 + Jac2
     return( applyColoring(e1) )
 })
 
@@ -205,8 +269,20 @@ setMethod("-", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
+    if ( length(e1@F) == 1 ) {
+        # Duplicate single row e1@J to get nrow(e2@F) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
+    } else {
+        Jac1 = e1@J
+    }
+    if ( length(e2@F) == 1 ) {
+        # Duplicate single row e2@J to get length(e1@F) rows.
+        Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
+    } else {
+        Jac2 = e2@J
+    }
     e1@F = e1@F - e2@F
-    e1@J = e1@J - e2@J
+    e1@J = Jac1 - Jac2
     return( applyColoring(e1) )
 })
 
@@ -215,9 +291,26 @@ setMethod("*", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
-    e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
-           Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J
-    e1@F = e1@F * e2@F
+    
+    # Perform different calculation depending on whether e1 or e2 is scalar.
+    if ( length(e1@F) == length(e2@F) ) {
+        e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
+               Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J
+        e1@F = e1@F * e2@F
+    } else if ( length(e1@F) == 1 & length(e2@F) > 1 ) {
+        # Duplicate single row e1@J to get nrow(e2@F) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
+        e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% Jac1 + e1@F * e2@J
+        e1@F = e1@F * e2@F
+    } else if ( length(e1@F) > 1 & length(e2@F) == 1 ) {
+        # Duplicate single row e2@J to get length(e1@F) rows.
+        Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
+        e1@J = e2@F * e1@J + Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% Jac2
+        e1@F = e1@F * e2@F
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
+    }
+
     return( applyColoring(e1) )
 })
 
@@ -226,10 +319,29 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
     vars = mergevars(e1@vars,e2@vars)
     e1   = expandJacDomain(e1,vars)
     e2   = expandJacDomain(e2,vars)
-    e1@J = Matrix(diag( (e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
-                - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
-                  Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J )
-    e1@F = e1@F / e2@F
+    
+    # Perform different calculation depending on whether e1 or e2 is scalar.
+    if ( length(e1@F) == length(e2@F) ) {
+        e1@J = Matrix(diag( (e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
+                    - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
+                      Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J )
+        e1@F = e1@F / e2@F
+    } else if ( length(e1@F) == 1 & length(e2@F) > 1 ) {
+        # Duplicate single row e1@J to get nrow(e2@F) rows.
+        Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
+        e1@J = Matrix(diag( (e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
+                    - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% Jac1 + 
+                      e1@F * e2@J )
+        e1@F = e1@F / e2@F
+    } else if ( length(e1@F) > 1 & length(e2@F) == 1 ) {
+        # Duplicate single row e2@J to get length(e1@F) rows.
+        Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
+        e1@J = (e2@F)^2 * ( - e2@F * e1@J + 
+                    Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% Jac2 )
+        e1@F = e1@F / e2@F
+    } else {
+        stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
+    }
     return( applyColoring(e1) )
 })
 
