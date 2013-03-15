@@ -44,8 +44,3 @@ mpec.vars.collate <- function(x0,vars,coloring=FALSE) {
 mpec.vars.init <- function(vars,value=0) {
   return(rep(value,Reduce('+', vars)))
 }
-
-mpec.vars.extand <- function(F,vars) {
-
-  
-}

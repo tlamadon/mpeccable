@@ -33,23 +33,15 @@ cFunc <- function(params) {
   g. = params[['g.']]
 
   # we want to minimize the distance between the spline and the values
-  R =  F(cc$x,g.) - cc$y
+  R  =  F(cc$x,g.) - cc$y
+
+  # and I also want to constrain the second derivative to be small
+  R2  =  0.005*F(cc$x,g.,deriv=2) 
 
   # return the list of constraints, sepecifying each type
   # for now it's only MSE constraints
-  return(list(   C.ABS= R))
+  return(list(   C.ABS= rbind2(R,R2)))
 }
-
-objFunc <- function(params) {
-  # get the parameters
-  g. = params[['g.']]
-
-  # we want to regularize the spline so we add the sum of derivatives squared
-  OBJ = 0.0001*sum(F(cc$x,g.,deriv=2)^2)
-
-  return(list(OBJ=OBJ))
-}
-
 
 opts <- list("print_level"=5,
              "tol"=1.0e-8,

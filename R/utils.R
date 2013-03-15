@@ -82,3 +82,26 @@ getSparseValues <- function(M,S)
   return(r)
 }
 
+trans.sparse <- function(A) {
+
+    nvals = diff(M@p) # this is the number of values in each column
+    for (n %in% nvals) {
+      for (i in 0:(n-1)) {
+        S[[ M@i[]    ]]
+      }
+    }
+
+    S <- list()
+    for (i in 1:nrow(A)) {
+        indices <- c()
+        for (j in 1:ncol(A)) {
+            if (A[i, j]) {
+                indices <- c(indices, j)
+            }
+        }
+        S <- c(S, list(indices))
+    }
+    return(S)
+}
+
+

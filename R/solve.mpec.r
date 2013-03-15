@@ -75,8 +75,11 @@ mpeccable.csolve <- function( objFunc=function(params) {list(OBJ=0)}, cFunc, x0,
 
   x0.augmented = c(x0,optim.err@F)
   lb = rep(-Inf,length(x0.augmented))
-  ub = rep(Inf,length(x0.augmented))
-  
+  ub = rep(Inf ,length(x0.augmented))
+  # adding the contraint that the errors are positive
+  ranges = computeVarRanges(vars)
+  lb[ranges[['optim.err']]] = 0
+
   private = list(vars=vars,eval_jac_g_structure=eval_jac_g_structure,cFunc=cFunc,objFunc=objFunc)
 
   #length(eval_jac_g(x0.augmented,private))
