@@ -9,10 +9,8 @@ require(Matrix)
 #' @family frep
 #' @example examples/F_SplineInt1D_example.r
 F_SplineInt1D <- function(xsupp,ivals) {
-	#   xknots = splineKnotsMpec(xsupp)$knots
-	#   Nx     = splineKnotsMpec(xsupp)$N
-  xknots = knot.select(grid=xsupp,deg=3)	# selects knots such that num of spline coefs == num data points, i.e. there is an exact solution.
-  Nx     = length(xknots)
+  xknots = splineKnotsMpec(xsupp)$knots
+  Nx     = splineKnotsMpec(xsupp)$N
 
  ff <- function(ain,zin,gin,deriv=0) {
 
