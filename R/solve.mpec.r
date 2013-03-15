@@ -143,7 +143,7 @@ mpeccable.asolve <- function( objFunc=function(params) {list(OBJ=0)}, cFunc, x0,
   vars[['optim.err']] = dim(optim.err)[1]
 
   # exctract the sparse structure of the jacobian
-  eval_jac_g_structure <- make.sparse( C.ABS@J!=0) # needs to 
+  eval_jac_g_structure <- ipoptr.sparse( C.ABS@J!=0) # needs to 
 
   # Create the objective function and the constraint function for ipopt
   # -------------------------------------------------------------------

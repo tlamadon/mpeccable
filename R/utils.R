@@ -82,26 +82,28 @@ getSparseValues <- function(M,S)
   return(r)
 }
 
-trans.sparse <- function(A) {
+#' transform a sparse matrix in column compressed format to the 
+#' format required by ipoptr
+#' @export
+ipoptr.sparse <- function(A) {
 
-    nvals = diff(M@p) # this is the number of values in each column
-    for (n %in% nvals) {
-      for (i in 0:(n-1)) {
-        S[[ M@i[]    ]]
+  # first we get the total number of rows
+  nr = nrow(A)
+
+  nvals = diff(A@p) # this is the number of values in each column
+  j = 1
+  for (col in 1:length(nvals)) {
+    for (i in 1:nvals[col]) {
+      if ( length(S) >=(A@i[j] + 1)) {
+        S[[ A@i[j] + 1 ]] = c(  S[[ A@i[j] + 1 ]]   , col )
+      } else {
+        S[[ A@i[j] + 1 ]] = col     
       }
+      j = j+1
     }
+  }
 
-    S <- list()
-    for (i in 1:nrow(A)) {
-        indices <- c()
-        for (j in 1:ncol(A)) {
-            if (A[i, j]) {
-                indices <- c(indices, j)
-            }
-        }
-        S <- c(S, list(indices))
-    }
-    return(S)
+  return(S)
 }
 
 
