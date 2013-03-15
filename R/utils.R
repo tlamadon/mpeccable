@@ -1,6 +1,7 @@
 #' this makes sure both Jacobians cover the same
 #' variables. If they do not, a common Jocabian 
 #' support is returned with appropriate values
+#' @export
 expandJacDomain <- function(e1, vars) {
 
   # check if anything is to be done

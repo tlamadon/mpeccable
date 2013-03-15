@@ -12,7 +12,7 @@ require(ipoptr)
 # ----------------------
 Nx = 15
 xsupp  = seq(0,1,l=Nx)
-ivals  = 1:3
+ivals  = 1
 
 # define a simple collocation with more points
 cc = expand.grid(a=seq(0,1,l=Nx),z=ivals)

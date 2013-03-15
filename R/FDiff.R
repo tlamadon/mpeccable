@@ -373,6 +373,15 @@ setMethod("log", "FDiff", function(x) {
     return( applyColoring(x) ) 
 })
 
+#'@export
+# TODO: throw some error maybe if we have non-positive numbers?
+setMethod("abs", "FDiff", function(x) {
+    # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
+    x@J = sign(x@J)
+    x@F = abs(x@F)
+    return( applyColoring(x) ) 
+})
+
 ##
 #
 # Functions working on all elements of FDiff at the same time.
