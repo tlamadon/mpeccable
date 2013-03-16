@@ -61,7 +61,7 @@ test_that("Test Operator(FDiff, numeric) where FDiff is scalar and numeric is a 
     fx.   <- 2.5 * ( ( x. + 2 ) / v ) - 4
     expect_that( fx.@F, equals( 2.5 * ( ( xval + 2 ) / v ) - 4 ) )
     expect_that( fx.@J, equals( 
-        Matrix( finite.diff( func = function(x) { 2.5 * ( ( x + 2 ) / v ) - 4 }, .x = xval ), sparse=TRUE ) ) )
+        Matrix( finite.diff( func = function(x) { 2.5 * ( ( x + 2 ) / v ) - 4 }, .x = xval ), sparse=TRUE ), tolerance=1e-7 ) )
     
     # Operator('^')
     fx.   <- x. ^ v
@@ -137,7 +137,7 @@ test_that("Test Operator(FDiff, numeric) where FDiff is a vector and numeric is 
     fx.   <- 2.5 * ( ( x. + 2 ) / v ) - 4
     expect_that( fx.@F, equals( 2.5 * ( ( xval + 2 ) / v ) - 4 ) )
     expect_that( fx.@J, equals( 
-        Matrix( finite.diff( func = function(x) { 2.5 * ( ( x + 2 ) / v ) - 4 }, .x = xval ), sparse=TRUE ) ) )
+        Matrix( finite.diff( func = function(x) { 2.5 * ( ( x + 2 ) / v ) - 4 }, .x = xval ), sparse=TRUE ), tolerance=1e-7 ) )
     
     # Operator('^')
     fx.   <- x. ^ v
@@ -180,7 +180,7 @@ test_that("Test Operator(FDiff, numeric) where FDiff is a vector and numeric is 
     # Operator('^')
     fx.   <- x. ^ v
     expect_that( fx.@F, equals( xval ^ v ) )
-    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x ^ v }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x ^ v }, .x = xval ), sparse=TRUE ), "dgCMatrix" ), tolerance=1e-7 ) )
 } )
 
 ##
@@ -232,7 +232,7 @@ test_that("Test Operator(numeric, FDiff) where numeric is scalar and FDiff is a 
     fx.   <- 2.5 * ( ( v + 2 ) / x. ) - 4
     expect_that( fx.@F, equals( 2.5 * ( ( v + 2 ) / xval ) - 4 ) )
     expect_that( fx.@J, equals( 
-        as( Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+        as( Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), "dgCMatrix" ), tolerance=1e-7 ) )
     
     # Operator('^')
     expect_that( v ^ x., throws_error() )   # Not yet implemented.
@@ -271,7 +271,7 @@ test_that("Test Operator(numeric, FDiff) where numeric is scalar and FDiff is a 
     fx.   <- 2.5 * ( ( v + 2 ) / x. ) - 4
     expect_that( fx.@F, equals( 2.5 * ( ( v + 2 ) / xval ) - 4 ) )
     expect_that( fx.@J, equals( 
-        as( Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+        as( Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), "dgCMatrix" ), tolerance=1e-7 ) )
     
     # Operator('^')
     expect_that( v ^ x., throws_error() )   # Not yet implemented.
@@ -304,13 +304,13 @@ test_that("Test Operator(numeric, FDiff) where numeric is a vector and FDiff is 
     # Operator('/')
     fx.   <- v / x.
     expect_that( fx.@F, equals( v / xval ) )
-    expect_that( fx.@J, equals( Matrix( finite.diff( func = function(x) { v / x }, .x = xval ), sparse=TRUE ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = function(x) { v / x }, .x = xval ), sparse=TRUE ), tolerance=1e-7 ) )
     
     # Combined operators.
     fx.   <- 2.5 * ( ( v + 2 ) / x. ) - 4
     expect_that( fx.@F, equals( 2.5 * ( ( v + 2 ) / xval ) - 4 ) )
     expect_that( fx.@J, equals( 
-        Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ) ) )
+        Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), tolerance=1e-7 ) )
     
     # Operator('^')
     expect_that( v ^ x., throws_error() )   # Not yet implemented.
@@ -343,7 +343,7 @@ test_that("Test Operator(numeric, FDiff) where numeric is a vector and FDiff is 
     # Operator('/')
     fx.   <- v / x.
     expect_that( fx.@F, equals( v / xval ) )
-    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { v / x }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { v / x }, .x = xval ), sparse=TRUE ), "dgCMatrix" ), tolerance=1e-7 ) )
     
     # Combined operators.
     fx.   <- 2.5 * ( ( v + 2 ) / x. ) - 4
