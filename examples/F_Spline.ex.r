@@ -21,27 +21,26 @@ F     = F_Spline(seq(0,1,l=Nx))
 g. = param0(F,'g.',0)
 
 # storing the list of variables 
-vars <- mpec.vars.desc(list(g.))
+mpec = mpec.new()
+mpec = mpec.addVar(mpec,g.)
 
 # initial value
-x0 = mpec.vars.init(vars,0)
+x0 = mpec.getVarsAsVector(mpec)
 
 # creating the function that computes the list of constraints
-cFunc <- function(params) {
+cFunc <- function(mpec) {
 
   # get the parameters
-  g. = params[['g.']]
+  g. = mpec.getVar(mpec,'g.')
 
   # we want to minimize the distance between the spline and the values
   R  =  F(cc$x,g.) - cc$y
+  mpec = mpec.addAbsConstraint(mpec,R,'spline.error')
+  R2 = F(cc$x,g.,deriv=1)
+  mpec = mpec.addInequalityConstraint(mpec,R2,'spline.shape',lb=0)
 
-  # and I also want to constrain the second derivative to be small
-  #R2  =  0.005*F(cc$x,g.,deriv=2) 
-  #R = rbind2(R,R2)
-
-  # return the list of constraints, sepecifying each type
-  # for now it's only MSE constraints
-  return(list(   C.ABS= R))
+  # return the mpec object
+  return(mpec)
 }
 
 opts <- list("print_level"=5,
@@ -49,7 +48,7 @@ opts <- list("print_level"=5,
              "max_iter"=100)
 
 # call the optimizer
-res = mpeccable.asolve(cFunc=cFunc, x0=x0, vars = vars , opts = opts)
+res = mpec.solve(cFunc=cFunc, x0=x0, mpec = mpec , opts = opts)
 
 # extract results
 g.         = res$solution[['g.']]
