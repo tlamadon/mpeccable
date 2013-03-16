@@ -1,6 +1,6 @@
 library('testthat')
 library('mpeccable')
-library('ipopt')
+library('ipoptr')
 context("FDiff")
 
 test_that("Check that ipoptr.sparse is correct", {
