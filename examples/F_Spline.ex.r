@@ -36,11 +36,12 @@ cFunc <- function(params) {
   R  =  F(cc$x,g.) - cc$y
 
   # and I also want to constrain the second derivative to be small
-  R2  =  0.005*F(cc$x,g.,deriv=2) 
+  #R2  =  0.005*F(cc$x,g.,deriv=2) 
+  #R = rbind2(R,R2)
 
   # return the list of constraints, sepecifying each type
   # for now it's only MSE constraints
-  return(list(   C.ABS= rbind2(R,R2)))
+  return(list(   C.ABS= R))
 }
 
 opts <- list("print_level"=5,

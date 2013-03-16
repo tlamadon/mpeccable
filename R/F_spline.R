@@ -6,15 +6,18 @@ require(Matrix)
 #' @family frep
 F_Spline <- function(xsupp) {
 
-  xknots = splineKnotsMpec(xsupp)$knots
-  Nx     = splineKnotsMpec(xsupp)$N
+  #xknots = splineKnotsMpec(xsupp)$knots
+  #Nx     = splineKnotsMpec(xsupp)$N
+
+  xknots = knot.select(3,xsupp)
+  Nx     = length(xsupp)
 
   ff <- function(xin,gin,deriv=0) {
 
     # take care of the function representation
     # for sure gin is a fdiff, otherwise, makes not sense
     if (class(gin) == "FDiff") {      
-      M = splineDesign(xknots,xin,derivs = rep(deriv,length(xin)))        
+      M = splineDesign(xknots,xin,derivs = rep(deriv,length(xin)),ord=4)        
       F = M %*% gin@F
       if (gin@coloring) M = (M!=0)*1;
 

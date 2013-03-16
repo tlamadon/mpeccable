@@ -89,6 +89,7 @@ ipoptr.sparse <- function(A) {
 
   # first we get the total number of rows
   nr = nrow(A)
+  S = list()
 
   nvals = diff(A@p) # this is the number of values in each column
   j = 1
