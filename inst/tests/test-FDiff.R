@@ -358,6 +358,177 @@ test_that("Test Operator(numeric, FDiff) where numeric is a vector and FDiff is 
     #expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { v ^ x }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
 } )
 
+test_that("Test Operator(FDiff, FDiff) where FDiff is a scalar and FDiff is a scalar.", {
+    # Check Operator( x., y. ) where x. and y. are vectors.
+    # finite.diff returns a vector, so we have to explicitly convert this
+    # vector to a row matrix (when you do not specify the number of rows 
+    # and columns, Matrix by default creates a column matrix).
+    xval     <- 2.3
+    yval     <- 0.7
+    x.       <- FDiff( x=xval, name='x' )
+    y.       <- FDiff( x=yval, name='y' )
+    
+    # Operator('+')
+    fx.      <- x. + y.
+    testfunc <- function(x) { return( x[1:length(xval)] + x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), nrow=1, ncol=2, sparse=TRUE ) ) )
+    
+    # Operator('-')
+    fx.      <- x. - y.
+    testfunc <- function(x) { return( x[1:length(xval)] - x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), nrow=1, ncol=2, sparse=TRUE ) ) )
+    
+    # Operator('*')
+    fx.      <- x. * y.
+    testfunc <- function(x) { return( x[1:length(xval)] * x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), nrow=1, ncol=2, sparse=TRUE ) ) )
+    
+    # Operator('/')
+    fx.      <- x. / y.
+    testfunc <- function(x) { return( x[1:length(xval)] / x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), nrow=1, ncol=2, sparse=TRUE ), tolerance=1e-7 ) )
+    
+    # Combined operators.
+    fx.      <- 2.5 * ( ( x. + 2 ) / y. ) - 4
+    testfunc <- function(x) { 
+        xvec <- x[1:length(xval)]
+        yvec <- x[(length(xval)+1):length(x)]
+        return( 2.5 * ( ( xvec + 2 ) / yvec ) - 4 )
+    }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), nrow=1, ncol=2, sparse=TRUE ), tolerance=1e-7 ) )
+} )
+
+test_that("Test Operator(FDiff, FDiff) where FDiff is a scalar and FDiff is a vector.", {
+    # Check Operator( x., y. ) where x. and y. are vectors.
+    xval     <- 2.3
+    yval     <- c(2.0,3.0,4.0,5.0)
+    x.       <- FDiff( x=xval, name='x' )
+    y.       <- FDiff( x=yval, name='y' )
+    
+    # Operator('+')
+    fx.      <- x. + y.
+    testfunc <- function(x) { return( x[1:length(xval)] + x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('-')
+    fx.      <- x. - y.
+    testfunc <- function(x) { return( x[1:length(xval)] - x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('*')
+    fx.      <- x. * y.
+    testfunc <- function(x) { return( x[1:length(xval)] * x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('/')
+    fx.      <- x. / y.
+    testfunc <- function(x) { return( x[1:length(xval)] / x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Combined operators.
+    fx.      <- 2.5 * ( ( x. + 2 ) / y. ) - 4
+    testfunc <- function(x) { 
+        xvec <- x[1:length(xval)]
+        yvec <- x[(length(xval)+1):length(x)]
+        return( 2.5 * ( ( xvec + 2 ) / yvec ) - 4 )
+    }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+} )
+
+test_that("Test Operator(FDiff, FDiff) where FDiff is a vector and FDiff is a scalar.", {
+    # Check Operator( x., y. ) where x. and y. are vectors.
+    xval     <- c(1.0,2.0,3.0,4.0)
+    yval     <- 0.7
+    x.       <- FDiff( x=xval, name='x' )
+    y.       <- FDiff( x=yval, name='y' )
+    
+    # Operator('+')
+    fx.      <- x. + y.
+    testfunc <- function(x) { return( x[1:length(xval)] + x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('-')
+    fx.      <- x. - y.
+    testfunc <- function(x) { return( x[1:length(xval)] - x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('*')
+    fx.      <- x. * y.
+    testfunc <- function(x) { return( x[1:length(xval)] * x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('/')
+    fx.      <- x. / y.
+    testfunc <- function(x) { return( x[1:length(xval)] / x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ), tolerance=1e-7 ) )
+    
+    # Combined operators.
+    fx.      <- 2.5 * ( ( x. + 2 ) / y. ) - 4
+    testfunc <- function(x) { 
+        xvec <- x[1:length(xval)]
+        yvec <- x[(length(xval)+1):length(x)]
+        return( 2.5 * ( ( xvec + 2 ) / yvec ) - 4 )
+    }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ), tolerance=1e-7 ) )
+} )
+
+test_that("Test Operator(FDiff, FDiff) where FDiff is a vector and FDiff is a vector.", {
+    # Check Operator( x., y. ) where x. and y. are vectors.
+    xval     <- c(1.0,2.0,3.0,4.0)
+    yval     <- c(2.0,3.0,4.0,5.0)
+    x.       <- FDiff( x=xval, name='x' )
+    y.       <- FDiff( x=yval, name='y' )
+    
+    # Operator('+')
+    fx.      <- x. + y.
+    testfunc <- function(x) { return( x[1:length(xval)] + x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('-')
+    fx.      <- x. - y.
+    testfunc <- function(x) { return( x[1:length(xval)] - x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('*')
+    fx.      <- x. * y.
+    testfunc <- function(x) { return( x[1:length(xval)] * x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Operator('/')
+    fx.      <- x. / y.
+    testfunc <- function(x) { return( x[1:length(xval)] / x[(length(xval)+1):length(x)] ) }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+    
+    # Combined operators.
+    fx.      <- 2.5 * ( ( x. + 2 ) / y. ) - 4
+    testfunc <- function(x) { 
+        xvec <- x[1:length(xval)]
+        yvec <- x[(length(xval)+1):length(x)]
+        return( 2.5 * ( ( xvec + 2 ) / yvec ) - 4 )
+    }
+    expect_that( fx.@F, equals( testfunc( c(xval, yval) ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = testfunc, .x = c(xval,yval) ), sparse=TRUE ) ) )
+} )
+
 test_that("Test log(FDiff).", {
     # Check log( x. ) with one value at x.=1.0.
     xval  <- 1.0

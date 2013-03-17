@@ -360,21 +360,21 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
     
     # Perform different calculation depending on whether e1 or e2 is scalar.
     if ( length(e1@F) == length(e2@F) ) {
-        e1@J = Matrix(diag( (e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
-                    - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
+        e1@J = Matrix(diag( (1/e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
+                      Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J -
                       Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J )
         e1@F = e1@F / e2@F
     } else if ( length(e1@F) == 1 & length(e2@F) > 1 ) {
         # Duplicate single row e1@J to get nrow(e2@F) rows.
         Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
-        e1@J = Matrix(diag( (e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
-                    - Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% Jac1 + 
+        e1@J = Matrix(diag( (1/e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
+                      Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% Jac1 -
                       e1@F * e2@J )
         e1@F = e1@F / e2@F
     } else if ( length(e1@F) > 1 & length(e2@F) == 1 ) {
         # Duplicate single row e2@J to get length(e1@F) rows.
         Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
-        e1@J = (e2@F)^2 * ( - e2@F * e1@J + 
+        e1@J = (1/e2@F)^2 * ( e2@F * e1@J -
                     Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% Jac2 )
         e1@F = e1@F / e2@F
     } else {
