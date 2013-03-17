@@ -156,7 +156,7 @@ setMethod("*", c("FDiff","numeric"), function(e1,e2) {
 #'@export
 setMethod("^", c("FDiff","numeric"), function (e1, e2) {
     if ( length(e1@F) == length(e2) ) {
-        e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
+        e1@J = e2 * Diagonal( x = (e1@F)^(e2-1) ) %*% e1@J 
         e1@F = (e1@F)^e2
     } else if ( length(e1@F) == 1 & length(e2) > 1 ) {
         # Duplicate single row e1@J to get length(e2) rows.
@@ -164,7 +164,7 @@ setMethod("^", c("FDiff","numeric"), function (e1, e2) {
         e1@J = e2 * (e1@F)^(e2-1) * Jac1
         e1@F = (e1@F)^e2
     } else if ( length(e1@F) > 1 & length(e2) == 1 ) {
-        e1@J = e2 * Matrix(diag( (e1@F)^(e2-1), nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e1@J 
+        e1@J = e2 * Diagonal( x = (e1@F)^(e2-1) ) %*% e1@J 
         e1@F = (e1@F)^e2
     } else {
         stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
@@ -229,15 +229,15 @@ setMethod("/", c("numeric","FDiff"), function(e1,e2) {
     # definition of the Jacobian in FDiff, we explicitly convert the matrix to a sparse
     # matrix.
     if ( length(e1) == length(e2@F) ) {
-        e2@J = Matrix( diag( -e1/((e2@F)^2), nrow=nrow(e2@J), ncol=ncol(e2@J) ), sparse=TRUE ) %*% e2@J
+        e2@J = Diagonal( x = -e1/((e2@F)^2) ) %*% e2@J
         e2@F = e1 / e2@F
     } else if ( length(e1) == 1 & length(e2@F) > 1 ) {
-        e2@J = Matrix( diag( -e1/((e2@F)^2), nrow=nrow(e2@J), ncol=ncol(e2@J) ), sparse=TRUE ) %*% e2@J
+        e2@J = Diagonal( x = -e1/((e2@F)^2) ) %*% e2@J
         e2@F = e1 / e2@F
     } else if ( length(e1) > 1 & length(e2@F) == 1 ) {
         # Duplicate single row e2@J to get length(e1) rows.
         Jac2 = Matrix( rep( as.vector(e2@J), length(e1) ), ncol=ncol(e2@J), nrow=length(e1), byrow=TRUE, sparse=TRUE )
-        e2@J = Matrix( diag( -e1/((e2@F)^2), nrow=nrow(Jac2), ncol=nrow(Jac2) ), sparse=TRUE ) %*% Jac2
+        e2@J = Diagonal( x = -e1/((e2@F)^2) ) %*% Jac2
         e2@F = e1 / e2@F
     } else {
         stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
@@ -254,9 +254,6 @@ setMethod("*", c("numeric","FDiff"), function(e1,e2) {
     } else if ( length(e1) == 1 & length(e2@F) > 1 ) {
         e2@J = e1 * e2@J
         e2@F = e1 * e2@F
-        
-        #e2@J = Matrix( diag( -e1/((e2@F)^2), nrow=nrow(e2@J), ncol=ncol(e2@J) ), sparse=TRUE ) %*% e2@J
-        #e2@F = e1 / e2@F
     } else if ( length(e1) > 1 & length(e2@F) == 1 ) {
         # Duplicate single row e2@J to get length(e1) rows.
         Jac2 = Matrix( rep( as.vector(e2@J), length(e1) ), ncol=ncol(e2@J), nrow=length(e1), byrow=TRUE, sparse=TRUE )
@@ -332,18 +329,18 @@ setMethod("*", c("FDiff","FDiff"), function (e1, e2) {
     
     # Perform different calculation depending on whether e1 or e2 is scalar.
     if ( length(e1@F) == length(e2@F) ) {
-        e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J + 
-               Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J
+        e1@J = Diagonal( x = e2@F ) %*% e1@J + 
+               Diagonal( x = e1@F ) %*% e2@J
         e1@F = e1@F * e2@F
     } else if ( length(e1@F) == 1 & length(e2@F) > 1 ) {
         # Duplicate single row e1@J to get nrow(e2@F) rows.
         Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
-        e1@J = Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% Jac1 + e1@F * e2@J
+        e1@J = Diagonal( x = e2@F ) %*% Jac1 + e1@F * e2@J
         e1@F = e1@F * e2@F
     } else if ( length(e1@F) > 1 & length(e2@F) == 1 ) {
         # Duplicate single row e2@J to get length(e1@F) rows.
         Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
-        e1@J = e2@F * e1@J + Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% Jac2
+        e1@J = e2@F * e1@J + Diagonal( x = e1@F ) %*% Jac2
         e1@F = e1@F * e2@F
     } else {
         stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
@@ -360,22 +357,22 @@ setMethod("/", c("FDiff","FDiff"), function (e1, e2) {
     
     # Perform different calculation depending on whether e1 or e2 is scalar.
     if ( length(e1@F) == length(e2@F) ) {
-        e1@J = Matrix(diag( (1/e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
-                      Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% e1@J -
-                      Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% e2@J )
+        e1@J = Diagonal( x = (1/e2@F)^2 ) %*% ( 
+                      Diagonal( x = e2@F ) %*% e1@J -
+                      Diagonal( x = e1@F ) %*% e2@J )
         e1@F = e1@F / e2@F
     } else if ( length(e1@F) == 1 & length(e2@F) > 1 ) {
         # Duplicate single row e1@J to get nrow(e2@F) rows.
         Jac1 = Matrix( rep( as.vector(e1@J), nrow(e2@J) ), ncol=ncol(e1@J), nrow=nrow(e2@J), byrow=TRUE, sparse=TRUE )
-        e1@J = Matrix(diag( (1/e2@F)^2, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% ( 
-                      Matrix(diag( e2@F, nrow=length(e2@F), ncol=length(e2@F) ), sparse=TRUE) %*% Jac1 -
+        e1@J = Diagonal( x = (1/e2@F)^2 ) %*% ( 
+                      Diagonal( x = e2@F ) %*% Jac1 -
                       e1@F * e2@J )
         e1@F = e1@F / e2@F
     } else if ( length(e1@F) > 1 & length(e2@F) == 1 ) {
         # Duplicate single row e2@J to get length(e1@F) rows.
         Jac2 = Matrix( rep( as.vector(e2@J), nrow(e1@J) ), ncol=ncol(e2@J), nrow=nrow(e1@J), byrow=TRUE, sparse=TRUE )
         e1@J = (1/e2@F)^2 * ( e2@F * e1@J -
-                    Matrix(diag( e1@F, nrow=length(e1@F), ncol=length(e1@F) ), sparse=TRUE) %*% Jac2 )
+                    Diagonal( x = e1@F ) %*% Jac2 )
         e1@F = e1@F / e2@F
     } else {
         stop('Dimensions of ', deparse(substitute(e1)), ' and ', deparse(substitute(e2)), ' do not agree.', sep='')
@@ -406,7 +403,7 @@ setMethod("%*%", c("matrix","FDiff"), function(x,y) {
 # TODO: throw some error maybe if we have non-positive numbers?
 setMethod("log", "FDiff", function(x) {
     # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).
-    x@J = Matrix(diag( 1/(x@F), nrow=length(x@F), ncol=length(x@F) ), sparse=TRUE) %*% x@J
+    x@J = Diagonal( x = 1/(x@F) ) %*% x@J
     x@F = log(x@F)
     return( applyColoring(x) ) 
 })

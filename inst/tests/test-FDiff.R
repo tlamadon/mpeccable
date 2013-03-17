@@ -66,7 +66,7 @@ test_that("Test Operator(FDiff, numeric) where FDiff is scalar and numeric is a 
     # Operator('^')
     fx.   <- x. ^ v
     expect_that( fx.@F, equals( xval ^ v ) )
-    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { x ^ v }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = function(x) { x ^ v }, .x = xval ), sparse=TRUE ) ) )
 } )
 
 test_that("Test Operator(FDiff, numeric) where FDiff is scalar and numeric is a vector.", {
@@ -226,13 +226,13 @@ test_that("Test Operator(numeric, FDiff) where numeric is scalar and FDiff is a 
     # Operator('/')
     fx.   <- v / x.
     expect_that( fx.@F, equals( v / xval ) )
-    expect_that( fx.@J, equals( as( Matrix( finite.diff( func = function(x) { v / x }, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+    expect_that( fx.@J, equals( Matrix( finite.diff( func = function(x) { v / x }, .x = xval ), sparse=TRUE ) ) )
     
     # Combined operators.
     fx.   <- 2.5 * ( ( v + 2 ) / x. ) - 4
     expect_that( fx.@F, equals( 2.5 * ( ( v + 2 ) / xval ) - 4 ) )
     expect_that( fx.@J, equals( 
-        as( Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), "dgCMatrix" ), tolerance=1e-7 ) )
+        Matrix( finite.diff( func = function(x) { 2.5 * ( ( v + 2 ) / x ) - 4 }, .x = xval ), sparse=TRUE ), tolerance=1e-7 ) )
     
     # Operator('^')
     expect_that( v ^ x., throws_error() )   # Not yet implemented.
@@ -535,14 +535,14 @@ test_that("Test log(FDiff).", {
     x.    <- FDiff( x=xval, name='x' )
     logx. <- log( x. )
     expect_that( logx.@F, equals( log( xval ) ) )
-    expect_that( logx.@J, equals( as( Matrix( finite.diff( func = log, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+    expect_that( logx.@J, equals( Matrix( finite.diff( func = log, .x = xval ), sparse=TRUE ) ) )
     
     # Check log( x. ) with one value at x.=2.0.
     xval  <- 2.0
     x.    <- FDiff( x=xval, name='x' )
     logx. <- log( x. )
     expect_that( logx.@F, equals( log( xval ) ) )
-    expect_that( logx.@J, equals( as( Matrix( finite.diff( func = log, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )
+    expect_that( logx.@J, equals( Matrix( finite.diff( func = log, .x = xval ), sparse=TRUE ) ) )
     
     # Check log( x. ) at vector of values x.=c(1,2,3,4).
     xval  <- c(1.0,2.0,3.0,4.0)
