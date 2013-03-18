@@ -520,7 +520,7 @@ FDiff <- function(x, name, coloring=FALSE) {
   vars[name] = N
   new("FDiff",
     F    = x,
-    J    = Matrix(diag(rep(1,N), nrow=N, ncol=N), sparse=TRUE),
+    J    = Diagonal(N),
     vars = vars,
     coloring=coloring)
 }
