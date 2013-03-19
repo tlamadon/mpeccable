@@ -26,7 +26,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
   # take care of the function representation
   # for sure gin is a fdiff, otherwise, makes not sense
   if (class(gin) == "FDiff") {
-    M = matrix(0,nrow=length(zin) , ncol = length(ivals) * Nx,sparse=TRUE)
+    M = Matrix(0,nrow=length(zin) , ncol = length(ivals) * Nx, sparse=TRUE)
     F = array(0,length(zin))
     
     for (i in ivals) { # quite inneficient!
@@ -40,7 +40,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
         D = splineDesign(xknots,ain[I],outer.ok = TRUE,derivs = rep(deriv,length(ain[I])),ord=4,sparse=TRUE)        
       }
       M[I,J] = D
-      F[I]   = F[I] + c(D %*% gin@F[J])
+      F[I]   = F[I] + as.numeric(D %*% gin@F[J])
     }
     vars = list(v1 = length(ivals) * Nx)
     names(vars) <- names(gin@vars[[1]])
