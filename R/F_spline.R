@@ -1,9 +1,12 @@
 require(splines)
 require(Matrix)
 
-#' implement a 1D spline function representation
+#' One dimensional spline
+#'
+#' @param xsupp grid to be used for the spline
 #' @export
 #' @family frep
+#' @example examples/example-SplineFittingShapeRestriction.r
 F_Spline <- function(xsupp) {
 
   #xknots = splineKnotsMpec(xsupp)$knots
@@ -17,7 +20,7 @@ F_Spline <- function(xsupp) {
     # take care of the function representation
     # for sure gin is a fdiff, otherwise, makes not sense
     if (class(gin) == "FDiff") {      
-      M = splineDesign(xknots,xin,derivs = rep(deriv,length(xin)),ord=4)        
+      M = splineDesign(xknots,xin,derivs = rep(deriv,length(xin)),ord=4,sparse=TRUE)        
       F = M %*% gin@F
       if (gin@coloring) M = (M!=0)*1;
 
