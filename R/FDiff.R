@@ -514,16 +514,37 @@ setMethod(
 #' @param x a vector of current values
 #' @param name a anme that uniquly identify this variable in the overall
 #' @export
-FDiff <- function(x, name, coloring=FALSE) {
-  N = length(x)
-  vars = list()
-  vars[name] = N
-  new("FDiff",
-    F    = x,
-    J    = Diagonal(N),
-    vars = vars,
-    coloring=coloring)
+FDiff <- function(x, name, vars=NULL, coloring=FALSE) {
+    x.length = length(x)
+    if ( is.null(vars) ) {
+        vars       <- list()
+        vars[name] <- x.length
+        F          <- x
+        J          <- Matrix(diag(rep(1,x.length), nrow=x.length, ncol=x.length), sparse=TRUE)
+    } else {
+        # Run some checks on input.
+        if ( is.null( vars[[name]] ) ) {
+            stop('vars should contain at least name.')
+        }
+        if ( vars[[name]] != x.length ) {
+            stop('length of name in vars is not the same as length of x.')
+        }
+    
+        # Determine start and end index of name.
+        total.cols <- sum( unlist(vars) )
+        name.idx   <- (1:length(names(vars)))[ names( vars ) == name ]
+        col.start  <- sum( unlist(vars[1:name.idx]) ) - vars[[name]] + 1
+        
+        # Set F and J.
+        F              <- x
+        J              <- Matrix( 0, nrow=x.length, ncol=total.cols, sparse=TRUE )
+        J[ 1:x.length, col.start:(col.start + x.length - 1) ] <- Diagonal(x=rep(1,x.length))
+    }
+    
+    # Return new FDiff object.
+    return( new("FDiff",
+        F    = F,
+        J    = J,
+        vars = vars,
+        coloring=coloring ) )
 }
-
-
-
