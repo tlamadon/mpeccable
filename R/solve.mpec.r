@@ -4,7 +4,7 @@
 #' the second argument is an intial parameter value
 #' cFunc should return the coloring if called with coloring=TRUE
 #' @export
-#' @example examples/mpeccable.csolve.ex.r
+#' @example examples/example-MpecSolve.r
 mpec.solve <- function( objFunc=function(mpec) {mpec}, cFunc, x0, mpec ,opts ) {
 
   # Compute Jacobian Structure
@@ -35,29 +35,40 @@ mpec.solve <- function( objFunc=function(mpec) {mpec}, cFunc, x0, mpec ,opts ) {
 
   #  ------  objective function ------
   eval_f <- function(x,private) { 
+    save(x,file='last.eval.dat')
     mpec = mpec.setVarsFromVector(private$mpec,x)
     mpec = private$objFunc(mpec)
-    return(as.numeric(mpec.getObjective(mpec)@F)) 
+    res  = as.numeric(mpec.getObjective(mpec)@F)
+    if (any(!is.finite(res))) stop("error in eval_grad_f");
+    return(res) 
   }
   #  ------  objective function gradient ------
   eval_grad_f <- function(x,private) { 
+    save(x,file='last.eval.dat')
     mpec  = mpec.setVarsFromVector(private$mpec,x)
     mpec  = private$objFunc(mpec)
-    return(as.numeric(mpec.getObjective(mpec)@J))
+    res   = as.numeric(mpec.getObjective(mpec)@J)
+    if (any(!is.finite(res))) stop("error in eval_grad_f");
+    return(res)
   }
   #  ------  constraint function gradient ------
   eval_g <- function( x ,private) {    
+    save(x,file='last.eval.dat')
     mpec  = mpec.setVarsFromVector(private$mpec,x)
     mpec  = private$cFunc(mpec)                    # evaluate the constraints
-    return(mpec$CST.INEQ.FDiff@F)
+    res   = mpec$CST.INEQ.FDiff@F
+    if (any(!is.finite(res))) stop("error in eval_g");
+    return(res)
   }
   #  ------  constraint function gradient ------
   eval_jac_g <- function( x ,private) {   
+    save(x,file='last.eval.dat')
     mpec  = mpec.setVarsFromVector(private$mpec,x)
     mpec  = private$cFunc(mpec)                    # evaluate the constraints
  
     # extract sparse structure of the JAC
     res = getSparseValues(mpec$CST.INEQ.FDiff@J,private$eval_jac_g_structure)
+    if (any(!is.finite(res))) stop("error in jac");
     return(res)
   }
 

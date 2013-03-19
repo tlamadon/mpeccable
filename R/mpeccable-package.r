@@ -11,3 +11,5 @@
 #' @name mpeccable
 
 NULL
+
+# require(digest);require(devtools);document('~/git/fdiff');install('~/git/fdiff')

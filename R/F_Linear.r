@@ -4,7 +4,7 @@ require(Matrix)
 #' implements a linear form
 #' @export
 #' @family frep
-#' @example examples/F_Linear.ex.r
+#' @example examples/example-LinearRegression2.r
 F_Linear <- function(X) {
 
  XX = as.matrix(X)

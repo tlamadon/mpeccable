@@ -86,10 +86,14 @@ mpec.addInequalityConstraint <- function(mpec,R,name,lb=-Inf,ub=Inf) {
 #' @param ub the upper bound, either one value or a vector of same length as FDiff
 #' @export
 #' @family mpec.vars
-mpec.addVar <- function(mpec,F,lb=-Inf,ub=Inf) {
+mpec.addVar <- function(mpec,F,lb=-Inf,ub=Inf,checkExists=TRUE) {
   # makes sure size is correct
   if (length(F@F)>length(lb)) lb = rep(lb,length(F@F))
   if (length(F@F)>length(ub)) ub = rep(ub,length(F@F))
+
+  # make sure this variable is not in the list already
+  if (checkExists & length(intersect(names(F@vars),names(mpec$vars) ))>0)
+    stop("variable is already present in description");
 
   # append the variables
   mpec$vars = mergevars(mpec$vars,F@vars)
@@ -156,7 +160,7 @@ mpec.getBoundsAsVector <- function(mpec) {
 mpec.getObjective <- function(mpec) {
   # make sure Jac support is correct
   if (class(mpec$OBJ.FDiff)=='FDiff' || length(mpec$OBJ.ABS.vars)>0  ) {
-    OBJ = mpec$OBJ
+    OBJ = mpec$OBJ.FDiff
     for (v in mpec$OBJ.ABS.vars) {
       OBJ = OBJ + sum(mpec.getVar(mpec,v))
     }

@@ -54,7 +54,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
 
   # check if we have an exogneous or endogenous variable
   if (class(ain)=="FDiff") {
-    M = matrix(0,nrow=length(xsupp)*length(ivals) , ncol = length(ain@F))
+    M = Matrix(0, nrow=length(zin) , ncol = length(ain@F),sparse=T)
     
     for (i in ivals) { # quite inneficient!
       I  = which(zin==i)
@@ -63,7 +63,7 @@ F_SplineInt1D <- function(xsupp,ivals) {
       if (ain@coloring) {
         M[I,I] = Diagonal(length(I))  
       } else {
-        M[I,I] = Diagonal(length(I),c(D %*% gin[J]))   
+        M[I,I] = Diagonal(length(I), as.numeric(D %*% gin[J]))   
       }
     }
     R = appendJac(R,Matrix(M,sparse=T),ain@vars)
