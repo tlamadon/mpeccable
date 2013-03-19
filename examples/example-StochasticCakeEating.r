@@ -2,15 +2,15 @@ require(mpeccable)
 require(ggplot2)
 require(ipoptr)
 
-Na = 10
-asupp = seq(0, 5, l = Na)
+Na = 15
+asupp = seq(0, 20, l = Na)
 zvals = 1:3
 
 rho  = 0.2
 r    = 0.02
 beta = 0.95 
 
-cc = expand.grid(a = seq(0.001,5,l=2*Na), z = zvals)
+cc = expand.grid(a = seq(0.001,20,l=2*Na), z = zvals)
 
 V = F_SplineInt1D(asupp, zvals)
 g. = param0(V, "g.", 1)
@@ -21,7 +21,7 @@ z1 = (cc$z%%3) + 1
 # storing the list of variables 
 mpec = mpec.new()
 mpec = mpec.addVar(mpec,g.)
-mpec = mpec.addVar(mpec,a_,lb=0)
+mpec = mpec.addVar(mpec,a_,lb=0,ub=20)
 
 # initial value
 x0 = mpec.getVarsAsVector(mpec)
@@ -34,24 +34,30 @@ cFunc <- function(mpec) {
   a_ = mpec.getVar(mpec,'a_')
 
   # compute the utility and its derivative
-  U  =   log((1 + r) * cc$a  + cc$z/3 - a_)
-  Ua = - 1/((1 + r) * cc$a  + cc$z/3  - a_)
+  U   =     log( (1 + r) * cc$a  + cc$z/3 - a_)
+  Ua_ =    - 1/( (1 + r) * cc$a  + cc$z/3 - a_)
+  Ua  =  (1+r)/( (1 + r) * cc$a  + cc$z/3 - a_)
 
   # we append the level equation
   R =  V(cc$a,cc$z,g.)  - U - beta*V(a_,z1,g.)
   mpec = mpec.addAbsConstraint(mpec,R,'BE.level')
 
   # and the first order condition
-  R2 =  Ua - beta*V(a_,z1,g.,deriv=1)
+  R2 =  Ua_ + beta*V(a_,z1,g.,deriv=1)
   mpec = mpec.addAbsConstraint(mpec,R2,'BE.foc')
 
   # we constrain consumption to be positive
   R3 = (1 + r) * cc$a  + cc$z/3  - a_
   mpec = mpec.addInequalityConstraint(mpec,R3,'c.pos',lb=0)
 
-  # we constrain the value function to be concave
-  #R4 = V(cc$a,cc$z,g.,deriv=2)
-  #mpec = mpec.addInequalityConstraint(mpec,R4,'V.shape',ub=0)
+  # we add the envelope condition
+  R4 = V(cc$a,cc$z,g.,deriv=1) - Ua
+  mpec = mpec.addAbsConstraint(mpec,R4,'BE.env')
+
+  # and finally a concavity restriction
+  R5 = V(cc$a,cc$z,g.,deriv=2)
+  mpec = mpec.addInequalityConstraint(mpec,R5,'V.shape',ub=0)
+
 
   # return the mpec object
   return(mpec)

@@ -31,20 +31,41 @@ mpec.solve <- function( objFunc=function(mpec) {mpec}, cFunc, x0, mpec ,opts ) {
 
   # Create the objective function and the constraint function for ipopt
   # -------------------------------------------------------------------
-  private = list(mpec=mpec.color, cFunc=cFunc, objFunc=objFunc,eval_jac_g_structure=eval_jac_g_structure)
+  private = list(mpec=mpec.color, cFunc=cFunc, objFunc=objFunc,eval_jac_g_structure=eval_jac_g_structure,evals=list(),last_x=0)
+
+  last_x    = -1
+  last_mpec = NA
+  hit = 0
+  miss =0
 
   #  ------  objective function ------
   eval_f <- function(x,private) { 
-    save(x,file='last.eval.dat')
-    mpec = mpec.setVarsFromVector(private$mpec,x)
-    mpec = private$objFunc(mpec)
+    if (all(x==last_x)) {
+      mpec = last_mpec
+      hit <<- hit +1
+    } else {
+      mpec = mpec.setVarsFromVector(private$mpec,x)
+      mpec = private$objFunc(mpec)
+      last_x <<- x
+      last_mpec <<- mpec
+      miss <<- miss +1
+    }
     res  = as.numeric(mpec.getObjective(mpec)@F)
     if (any(!is.finite(res))) stop("error in eval_grad_f");
     return(res) 
   }
   #  ------  objective function gradient ------
   eval_grad_f <- function(x,private) { 
-    save(x,file='last.eval.dat')
+    if (all(x==last_x)) {
+      mpec = last_mpec
+      hit <<- hit +1
+    } else {
+      mpec = mpec.setVarsFromVector(private$mpec,x)
+      mpec = private$objFunc(mpec)
+      last_x <<- x
+      last_mpec <<- mpec
+      miss <<- miss +1
+    }
     mpec  = mpec.setVarsFromVector(private$mpec,x)
     mpec  = private$objFunc(mpec)
     res   = as.numeric(mpec.getObjective(mpec)@J)
@@ -52,8 +73,17 @@ mpec.solve <- function( objFunc=function(mpec) {mpec}, cFunc, x0, mpec ,opts ) {
     return(res)
   }
   #  ------  constraint function gradient ------
-  eval_g <- function( x ,private) {    
-    save(x,file='last.eval.dat')
+  eval_g <- function( x ,private) {  
+    if (all(x==last_x)) {
+      mpec = last_mpec
+      hit <<- hit +1
+    } else {
+      mpec = mpec.setVarsFromVector(private$mpec,x)
+      mpec = private$objFunc(mpec)
+      last_x <<- x
+      last_mpec <<- mpec
+      miss <<- miss +1
+    }
     mpec  = mpec.setVarsFromVector(private$mpec,x)
     mpec  = private$cFunc(mpec)                    # evaluate the constraints
     res   = mpec$CST.INEQ.FDiff@F
@@ -61,8 +91,17 @@ mpec.solve <- function( objFunc=function(mpec) {mpec}, cFunc, x0, mpec ,opts ) {
     return(res)
   }
   #  ------  constraint function gradient ------
-  eval_jac_g <- function( x ,private) {   
-    save(x,file='last.eval.dat')
+  eval_jac_g <- function( x ,private) { 
+     if (all(x==last_x)) {
+      mpec = last_mpec
+      hit <<- hit +1
+    } else {
+      mpec = mpec.setVarsFromVector(private$mpec,x)
+      mpec = private$objFunc(mpec)
+      last_x <<- x
+      last_mpec <<- mpec
+      miss <<- miss +1
+    }
     mpec  = mpec.setVarsFromVector(private$mpec,x)
     mpec  = private$cFunc(mpec)                    # evaluate the constraints
  
@@ -86,7 +125,8 @@ mpec.solve <- function( objFunc=function(mpec) {mpec}, cFunc, x0, mpec ,opts ) {
      constraint_lb=constraint_lb,
      constraint_ub=constraint_ub,
      opts=opts,
-     private=private)
+     private=private,
+     ipoptr_environment=environment())
 
   theta.opt = mpec.vectorToList(mpec.color,res$solution)
   res$solution = theta.opt
