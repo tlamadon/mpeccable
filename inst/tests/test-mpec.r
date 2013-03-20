@@ -1,6 +1,6 @@
 library('testthat')
 library('mpeccable')
-library('ipopt')
+library('ipoptr')
 context("FDiff")
 
 test_that("check if the mpec object behave correctly", {

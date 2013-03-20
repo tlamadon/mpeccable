@@ -12,7 +12,7 @@ expandJacDomain <- function(e1, vars) {
   }
 
   # we merge the variable lists
-  range1 = computeVarRanges(e1@vars)
+  range1   = computeVarRanges(e1@vars)
   rangeall = computeVarRanges(vars)
 
   J1 = Matrix(0,length(e1@F),sum(unlist(vars)) , sparse=T)

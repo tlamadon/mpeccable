@@ -16,11 +16,5 @@ test_that("Check that F_splineInt1D works", {
   g. = param0(V, "g.", 1)
   a_ = FDiff(cc$a/2, "a_")
 
-  V(a_,cc$z,g.)
-
-
-
-
-    expect_true(all(unlist(M1) == unlist(M2)))
 } )
 
