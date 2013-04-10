@@ -10,6 +10,8 @@ require(Matrix)
 #'
 #' @param xsupp a vector of support point for the the continuous dimension
 #' @param ivals a vector of discrete values for the support of the discrete dimension
+#' @param degree integer of desired spline degree
+#' @param nbasis.fun integer for desired number of basis functions
 #' @return frep an object of class frep that can be sued to evaluate functions and get levels and Jacobians
 #' @export
 #' @seealso \code{\link{F_SplineInt1D.r}} 
