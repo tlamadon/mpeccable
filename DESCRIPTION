@@ -31,3 +31,4 @@ Collate:
     'F_Linear.r'
     'F_spline.R'
     'mpec.r'
+    'F_SplineTime1D.r'

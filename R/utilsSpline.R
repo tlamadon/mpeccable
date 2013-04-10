@@ -41,7 +41,7 @@ splineKnotsMpec <- function(support) {
 #' @param num.basis integer of desired number of basis functions
 #' @param plotit logical of whether plot result
 #' @param stretch numeric value indicating if and by which percentage you want to stretch the knots over the data support. Useful when approximating values at or near bounds of data.
-#' @detail the crucial relationship is num.basis = \code{length(knots)} - degree - 1, which we use to find \code{length(knots)} = num.basis + degree + 1. The minimum number of basis functions to obtain a valid knot vector with correct multiplicity is \code{min(num.basis) = deg + 1}. 
+#' @details the crucial relationship is num.basis = \code{length(knots)} - degree - 1, which we use to find \code{length(knots)} = num.basis + degree + 1. The minimum number of basis functions to obtain a valid knot vector with correct multiplicity is \code{min(num.basis) = deg + 1}. 
 #' @return numeric vector of spline knots of class \emph{knotVec} with attribute \emph{num.basis}
 #' @examples 
 #' knot.select2(degree=3,x=1:10,num.basis=6,stretch=0.01,plotit=TRUE)
@@ -105,46 +105,6 @@ knot.select2 <- function(degree,x,num.basis,stretch=NULL,plotit=FALSE){
 
 
 
-
-
-
-
-
-
-
-
-
-
-function (x, df = NULL, knots = NULL, degree = 3, intercept = FALSE, 
-    Boundary.knots = range(x)) 
-{
-    nx <- names(x)
-    x <- as.vector(x)
-    nax <- is.na(x)
-    if (nas <- any(nax)) 
-        x <- x[!nax]
-    if (!missing(Boundary.knots)) {
-        Boundary.knots <- sort(Boundary.knots)
-        outside <- (ol <- x < Boundary.knots[1L]) | (or <- x > 
-            Boundary.knots[2L])
-    }
-    else outside <- FALSE
-    ord <- 1 + (degree <- as.integer(degree))
-    if (ord <= 1) 
-        stop("'degree' must be integer >= 1")
-    if (!missing(df) && missing(knots)) {
-        nIknots <- df - ord + (1 - intercept)
-        if (nIknots < 0) {
-            nIknots <- 0
-            warning("'df' was too small; have used  ", ord - 
-                (1 - intercept))
-        }
-        knots <- if (nIknots > 0) {
-            knots <- seq.int(from = 0, to = 1, length.out = nIknots + 
-                2)[-c(1, nIknots + 2)]
-            stats::quantile(x[!outside], knots)
-        }
-    }
 
 
 
