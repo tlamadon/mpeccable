@@ -316,8 +316,15 @@ setMethod("-", c("FDiff","FDiff"), function (e1, e2) {
     } else {
         Jac2 = e2@J
     }
-    e1@F = e1@F - e2@F
-    e1@J = Jac1 - Jac2
+	# we check for coloring because Jac1-Jac2 = 1 - 1 = 0 and we want 1.
+	# @FIXME this should be done everywhere
+	if (e1@coloring){
+		e1@F = e1@F - e2@F
+		e1@J = Jac1 | Jac2
+	} else {
+		e1@F = e1@F - e2@F
+		e1@J = Jac1 - Jac2
+	}
     return( applyColoring(e1) )
 })
 
