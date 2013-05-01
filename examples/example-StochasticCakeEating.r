@@ -3,7 +3,7 @@ require(ggplot2)
 require(ipoptr)
 
 Na = 15
-asupp = seq(0, 20, l = Na)
+asupp = seq(0.001, 20, l = Na)
 zvals = 1:3
 
 rho  = 0.2

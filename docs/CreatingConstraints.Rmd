@@ -107,7 +107,7 @@ image(R@J)
 
 ### Combine all the constraints
 
-```{r, simpleplot3,fig.align='center'}
+```{r, simpleplot4,fig.align='center'}
 R2 =  Up - 0.95*V(a_,z1,g.,deriv=1)
 image(R@J)
 ```

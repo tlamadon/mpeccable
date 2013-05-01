@@ -548,3 +548,6 @@ FDiff <- function(x, name, vars=NULL, coloring=FALSE) {
         vars = vars,
         coloring=coloring ) )
 }
+
+#' function that extracts 
+
