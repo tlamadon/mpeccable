@@ -45,6 +45,7 @@ R = V(cc$x,cc$i,v.)
 
 opts <- list("print_level"=5,
              "tol"=1.0e-8,
+			 "derivative_test"="first-order",
              "max_iter"=100)
 
 # call the optimizer

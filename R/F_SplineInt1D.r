@@ -29,6 +29,14 @@ F_SplineInt1D <- function(xsupp,ivals) {
     M = Matrix(0,nrow=length(zin) , ncol = length(ivals) * Nx, sparse=TRUE)
     F = array(0,length(zin))
     
+	# here it would be good to be more flexbile
+	# with timing, there is always a last period
+	# e.g. i don't want to know the euler equation in the last period, it's not defined.
+	# key <- data.table(expand.grid(ia=1:Na,iz=1:5),key="iz")
+	# key[,index := 1:nrow(key)]
+	# for (i in zin){
+	#     I = key[.(zin)][,index]
+	# instead of (i in ivals)
     for (i in ivals) { # quite inneficient!
       I = which(zin==i)
       J = ((i-1)*Nx+1) : ((i-1)*Nx+Nx)
@@ -61,8 +69,9 @@ F_SplineInt1D <- function(xsupp,ivals) {
       J  = 1:Nx # we need all functional parameters
       D = splineDesign(xknots,ain[I],deriv=rep(1+deriv,length(ain[I])),outer.ok = TRUE,ord=4,sparse=TRUE)
       if (ain@coloring) {
-        M[I,I] = Diagonal(length(I))  
+        M[I,I] = Diagonal(length(I),x=1)  
       } else {
+		  # there is a gin@F[J] missing here? 
         M[I,I] = Diagonal(length(I), as.numeric(D %*% gin[J]))   
       }
     }

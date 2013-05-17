@@ -22,14 +22,11 @@ F_SplineTime1D <- function(xsupp,ivals,degree,nbasis.funs) {
   # get the slpines knots and parameter length
   xknots <- knot.select2(degree=degree,x=xsupp,num.basis=nbasis.funs,stretch=0.01)
   Nx     <- length(xsupp)            # number of data points in each discrete bin
-  Nm     <- attr(xknots,'num.basis') # number of spline coefficients in each discrete bin
+  ng     <- attr(xknots,'num.basis') # number of spline coefficients in each discrete bin
 
   ff <- function(ain,zin,gin,deriv=0) {
 
 
-	if (class(ain)=="FDiff"){
-	 if (ain@coloring) browser()
-	}
 	# spline parameter gin
 	# --------------------------
 
@@ -38,7 +35,7 @@ F_SplineTime1D <- function(xsupp,ivals,degree,nbasis.funs) {
 	
 	  if (class(gin) == "FDiff") {
 
-		M = Matrix(0,nrow=length(zin) , ncol = length(ivals) * Nm, sparse=TRUE)	# M not necessarily square
+		M = Matrix(0,nrow=length(zin) , ncol = length(ivals) * ng, sparse=TRUE)	# M not necessarily square
 		F = array(0,length(zin))
 		
 		# here it would be good to be more flexbile
@@ -48,7 +45,7 @@ F_SplineTime1D <- function(xsupp,ivals,degree,nbasis.funs) {
 		# key[,index := 1:nrow(key)]
 		for (i in unique(zin)){
 		  I = which(zin==i)	# row indices of M for discrete bin i
-		  J = ((i-1)*Nm+1) : ((i-1)*Nm+Nm)	# col indices
+		  J = ((i-1)*ng+1) : ((i-1)*ng+ng)	# col indices
 		
 		  # check for final period
 		  if (i == maxtime){
@@ -67,7 +64,7 @@ F_SplineTime1D <- function(xsupp,ivals,degree,nbasis.funs) {
 			}
 
 		  }
-		vars = list(v1 = length(ivals) * Nm)
+		vars = list(v1 = length(ivals) * ng)
 		names(vars) <- names(gin@vars[[1]])
 
 		if (gin@coloring) M = (M!=0)*1;
@@ -82,14 +79,15 @@ F_SplineTime1D <- function(xsupp,ivals,degree,nbasis.funs) {
 
 	# check if we have an exogneous or endogenous variable
 	if (class(ain)=="FDiff") {
+
 	  M = Matrix(0, nrow=length(zin) , ncol = length(ain@F),sparse=T)	# M is square
 	  
 	  for (i in unique(zin)){
 		I = which(zin==i)
-		J  = 1:Nm
+		J  = 1:ng
 		# check for final period
 		if (i == maxtime){
-		  M[I,I] = Diagonal(length(I), 1/ ain[I] )	# suppose final function is log
+		  M[I,I] = Diagonal(length(I), 1/ ain@F[I] )	# suppose final function is log
 		} else {
 		  D = splineDesign(xknots,ain[I],deriv=rep(1+deriv,length(ain[I])),outer.ok = TRUE,ord=degree+1,sparse=TRUE)
 		  if (ain@coloring) {
@@ -104,6 +102,6 @@ F_SplineTime1D <- function(xsupp,ivals,degree,nbasis.funs) {
 	return(R)
   }
   class(ff) = 'frep'
-  attr(ff,'ng') = length(ivals) * Nm
+  attr(ff,'ng') = length(ivals) * ng	# that's the total num of spline coefficients across bin	# that's the total num of spline coefficients across bins
   return(ff)
 }

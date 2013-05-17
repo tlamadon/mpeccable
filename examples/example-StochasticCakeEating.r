@@ -2,26 +2,26 @@ require(mpeccable)
 require(ggplot2)
 require(ipoptr)
 
-Na = 15
-asupp = seq(0, 20, l = Na)
+Na =15 
+asupp = seq(1, 20, l = Na)
 zvals = 1:3
 
 rho  = 0.2
 r    = 0.02
 beta = 0.95 
 
-cc = expand.grid(a = seq(0.001,20,l=2*Na), z = zvals)
+cc = expand.grid(a = seq(1,19,l=2*Na), z = zvals)
 
 V = F_SplineInt1D(asupp, zvals)
 g. = param0(V, "g.", 1)
 a_ = FDiff(cc$a/2, "a_")
-
+(1 + r) * cc$a  + cc$z/3 - a_
 z1 = (cc$z%%3) + 1
 
 # storing the list of variables 
 mpec = mpec.new()
 mpec = mpec.addVar(mpec,g.)
-mpec = mpec.addVar(mpec,a_,lb=0,ub=20)
+mpec = mpec.addVar(mpec,a_,lb=0,ub=cc$a)
 
 # initial value
 x0 = mpec.getVarsAsVector(mpec)
@@ -65,6 +65,7 @@ cFunc <- function(mpec) {
 
 opts <- list("print_level"=5,
              "tol"=1.0e-8,
+			 #              "derivative_test"="first-order",
              "max_iter"=40)
 
 # call the optimizer

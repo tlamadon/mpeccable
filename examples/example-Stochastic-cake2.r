@@ -33,7 +33,7 @@ maxtime <- cc[,max(z1)]	# last period
 # storing the list of variables 
 mpec = mpec.new()
 mpec = mpec.addVar(mpec,g.)
-mpec = mpec.addVar(mpec,c_,lb=0.05,ub=cc[,a])	
+mpec = mpec.addVar(mpec,c_,lb=0.01,ub=cc[,a])	
 # s = (a - c) * (1+r)
 # positive savings: s>0 implies
 # c < a
@@ -54,16 +54,18 @@ cFunc <- function(mpec) {
   Uc_  = 1 / U
 
   # compute implied savings
-  #   s_ = (1+r) * (cc$a - c_)
+  s_ = (1+r) * (cc$a - c_)
 
   # we append the level equation
-  R =  V(cc$a,cc$z,g.)  - U - beta*V((1+r) * (cc$a - c_),cc$z1,g.)
+  R =  V(cc$a,cc$z,g.)  - U - beta*V(c_,cc$z1,g.)
   mpec = mpec.addAbsConstraint(mpec,R,'BE.level')
+  #   mpec = mpec.addInequalityConstraint(mpec,R,'BE.level',ub=0)
 
   # and the first order condition
   # aka Euler Equation
   R2 =  Uc_ - beta*(1+r)*V((1+r) * (cc$a - c_),cc$z1,g.,deriv=1)
   mpec = mpec.addAbsConstraint(mpec,R2,'BE.foc')
+  #   mpec = mpec.addInequalityConstraint(mpec,R2,'BE.foc',ub=0)
 
   # we constrain consumption to be positive
   #   R3 = (1 + r) * cc$a  + cc$z/3  - a_
@@ -73,6 +75,7 @@ cFunc <- function(mpec) {
   #   R4 = V(cc$a,cc$z,g.,deriv=1) - (1+r)*beta*V(s,z1,g.,deriv=1)
   R4 = V(cc$a,cc$z,g.,deriv=1) - Uc_
   mpec = mpec.addAbsConstraint(mpec,R4,'BE.env')
+  #   mpec = mpec.addInequalityConstraint(mpec,R4,'BE.env')
 
   # and finally a concavity restriction
   #   R5 = V(cc$a,cc$z,g.,deriv=2)
@@ -85,7 +88,7 @@ cFunc <- function(mpec) {
 
 opts <- list("print_level"=5,
              "tol"=1.0e-8,
-			 #              "derivative_test"="first-order",
+			 "derivative_test"="first-order",
              "max_iter"=40)
 
 # call the optimizer
@@ -99,6 +102,7 @@ cc$c_opt   = c_@F
 cc$saving  = (1 + r) * (cc$a - cc$c_opt)
 cc$V       = V(cc$a,cc$z,g.)@F
 
+library(reshape)
 cc.l = melt(cc,id.vars=c('a','z'))
 
 ggplot(subset(cc.l,variable != "z1"),aes(x=a,y=value,color=factor(z))) + 
