@@ -2,13 +2,8 @@ require(mpeccable)
 require(ggplot2)
 require(ipoptr)
 
-<<<<<<< HEAD
 Na =15 
 asupp = seq(1, 20, l = Na)
-=======
-Na = 15
-asupp = seq(0.001, 20, l = Na)
->>>>>>> f1ef706c8eb0f7d07af75d5b1b30b185efc701e3
 zvals = 1:3
 
 rho  = 0.2
