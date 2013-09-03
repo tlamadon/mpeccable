@@ -65,7 +65,7 @@ cFunc <- function(mpec) {
 
 opts <- list("print_level"=5,
              "tol"=1.0e-8,
-			 #              "derivative_test"="first-order",
+			 "derivative_test"="first-order",
              "max_iter"=40)
 
 # call the optimizer
