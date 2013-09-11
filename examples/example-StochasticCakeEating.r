@@ -43,7 +43,7 @@ cFunc <- function(mpec) {
   mpec = mpec.addAbsConstraint(mpec,R,'BE.level')
 
   # and the first order condition
-  R2 =  Ua_ + beta*V(a_,z1,g.,deriv=1)
+  R2 =  Ua_ - beta*V(a_,z1,g.,deriv=1)
   mpec = mpec.addAbsConstraint(mpec,R2,'BE.foc')
 
   # we constrain consumption to be positive
