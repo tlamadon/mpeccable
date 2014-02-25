@@ -559,3 +559,42 @@ test_that("Test log(FDiff).", {
     expect_that( funcx.@F, equals( tmpfunc( xval ) ) )
     expect_that( funcx.@J, equals( as( Matrix( finite.diff( func = tmpfunc, .x = xval ), sparse=TRUE ), "dgCMatrix" ) ) )  
 } )
+
+
+test_that("Test exp(FDiff).", {
+    # Check exp( x. ) with one value at x.=0.
+    xval  <- 0
+    x.    <- FDiff( x=xval, name='x' )
+    expx. <- exp( x. )
+    expect_that( expx.@F, equals( exp( xval ) ) )
+    expect_that( expx.@J, equals( Matrix( finite.diff( func = exp, .x = xval ), sparse=TRUE ) ) )
+
+    # Check exp( x. ) with one value at x.=1.0.
+    xval  <- 1.0
+    x.    <- FDiff( x=xval, name='x' )
+    expx. <- exp( x. )
+    expect_that( expx.@F, equals( exp( xval ) ) )
+    expect_that( expx.@J, equals( Matrix( finite.diff( func = exp, .x = xval ), sparse=TRUE ) ) )
+    
+    # Check exp( x. ) with one value at x.=2.0.
+    xval  <- 2.0
+    x.    <- FDiff( x=xval, name='x' )
+    expx. <- exp( x. )
+    expect_that( expx.@F, equals( exp( xval ) ) )
+    expect_that( expx.@J, equals( Matrix( finite.diff( func = exp, .x = xval ), sparse=TRUE ) ) )
+    
+    # Check exp( x. ) at vector of values x.=c(0,1,2,3).
+    xval  <- c(0,1,2,3)
+    x.    <- FDiff( x=xval, name='x' )
+    expx. <- exp( x. )
+    expect_that( expx.@F, equals( exp( xval ) ) )
+    expect_that( expx.@J, equals( as( Matrix( finite.diff( func = exp, .x = xval ), sparse=TRUE ), "dgCMatrix" ), tolerance=0.0001 ) )
+    
+    # Check composite function.
+    xval  <- c(0,1,2,3)
+    x.      <- FDiff( x=xval, name='x' )
+    funcx.  <- exp( 3*( exp(x.) + 2 ) )
+    tmpfunc <- function(x) { exp(3*(exp(x) + 2)) }
+    expect_that( funcx.@F, equals( tmpfunc( xval ) ) )
+    expect_that( funcx.@J, equals( as( Matrix( finite.diff( func = tmpfunc, .x = xval ), sparse=TRUE ), "dgCMatrix" ) , tolerance=0.0001) )  
+} )

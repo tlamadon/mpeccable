@@ -43,7 +43,6 @@ splineKnotsMpec <- function(support) {
 #' @param stretch numeric value indicating if and by which percentage you want to stretch the knots over the data support. Useful when approximating values at or near bounds of data.
 #' @details the crucial relationship is num.basis = \code{length(knots)} - degree - 1, which we use to find \code{length(knots)} = num.basis + degree + 1. The minimum number of basis functions to obtain a valid knot vector with correct multiplicity is \code{min(num.basis) = deg + 1}. 
 #' @return numeric vector of spline knots of class \emph{knotVec} with attribute \emph{num.basis}
-#' @examples 
 #' @export
 #' knot.select2(degree=3,x=1:10,num.basis=6,stretch=0.01,plotit=TRUE)
 knot.select2 <- function(degree,x,num.basis,stretch=NULL,plotit=FALSE){

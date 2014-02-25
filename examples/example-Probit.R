@@ -70,4 +70,4 @@ res <- nloptr( x0     = params0,
 time.stop <- Sys.time()
 print(time.stop - time.start)
 print( res )
-glm( y ~ -1 + X, family=binomial(link=probit) )
+print(glm( y ~ -1 + X, family=binomial(link=probit) ))

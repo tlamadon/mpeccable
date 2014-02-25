@@ -416,6 +416,13 @@ setMethod("log", "FDiff", function(x) {
 })
 
 #'@export
+setMethod("exp", "FDiff", function(x) {
+    x@F = exp(x@F)
+    x@J = Diagonal( x = x@F ) %*% x@J
+    return( applyColoring(x) ) 
+})
+
+#'@export
 # TODO: throw some error maybe if we have non-positive numbers?
 setMethod("abs", "FDiff", function(x) {
     # Order of defining J and F matters, as J is defined in terms of the original F (i.e. before taking the log).

@@ -3,4 +3,4 @@ install:
 	R CMD INSTALL  ./ --clean
 
 test:
-	Rscript -e "library('testthat'); require(devtools); test('./');"
+	Rscript -e "library('testthat'); require(devtools); test('./mpeccable');"
